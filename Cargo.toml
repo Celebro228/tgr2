@@ -1,0 +1,15 @@
+[package]
+name = "tgr2"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "test"
+path = "test/test.rs"
+
+[dependencies]
+glam = "0.30.3"
+pollster = "0.4.0"
+rayon = "1.10.0"
+wgpu = "25.0.2"
+winit = "0.30.11"
