@@ -1,13 +1,12 @@
-pub mod engine;
-pub use engine::*;
+pub struct Engine {
+    title: String
+}
 
-pub mod render;
-pub use render::*;
-
-pub mod object;
-pub use object::*;
-
-pub mod color;
-pub use color::*;
-
+impl Engine {
+    pub fn new(title: &str) -> Self {
+        Self {
+            title: title.to_string()
+        }
+    }
+}
 

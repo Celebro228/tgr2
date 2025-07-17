@@ -1,9 +1,9 @@
 fn main() {
-    window::main();
+    test::main();
 }
 
 
-mod window {
+mod test {
     use tgr2::*;
 
     pub fn main() {
