@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 # Тесты
-[[bin]]
+[[test]]
 name = "test"
 path = "test/test.rs"
 
@@ -12,10 +12,8 @@ path = "test/test.rs"
 # Зависимости
 [dependencies]
 glam = "0.30.4"
-pollster = "0.4.0"
+miniquad = "0.4.8"
 rayon = "1.10.0"
-wgpu = "25.0.2"
-winit = "0.30.11"
 
 
 # Режим для разработчиков
