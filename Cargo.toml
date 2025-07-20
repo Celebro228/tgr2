@@ -12,6 +12,7 @@ path = "test/test.rs"
 # Зависимости
 [dependencies]
 glam = "0.30.4"
+hashbrown = "0.15.4"
 miniquad = "0.4.8"
 rayon = "1.10.0"
 
