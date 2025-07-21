@@ -10,8 +10,8 @@ pub use app::*;
 pub mod module;
 pub use module::*;
 
-pub mod object2d;
-pub use object2d::*;
+pub mod object;
+pub use object::*;
 
 pub mod shape;
 pub use shape::*;
@@ -26,6 +26,7 @@ Todo:
 [#] Логика модулей
 [?] Добавление 2д объектов
 [?] Изменение 2д объектов
+[] Добавить update и/или draw в object2d
 [] Рисование 2д объектов
 [] Добавление 3д объектов
 [] Изменение 3д объектов
@@ -45,9 +46,10 @@ lib - связь между устройством и движком {
     app - состояние движка {
         audio
         data
-        object2d
-        object3d
-        text
+        object
+        shape
+        model
+        resource
     }
 }
 */

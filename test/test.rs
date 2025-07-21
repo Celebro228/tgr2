@@ -14,13 +14,12 @@ mod tests {
 
     impl Module for ShapesTest {
         fn ready(&mut self, app: &App) {
-            app.objects.add("test_circle", Circle(25.))
+            app.objects2d.add("test_circle", Circle(25.))
                 .obj()
-                .position_set(vec3(25., 25., 0.));
-            app.objects.add("test_rect", Rect(25., 25.))
+                .position_set(vec2(25., 25.));
+            app.objects2d.add("test_rect", Rect(25., 25.))
                 .obj()
-                
-                .position_set(vec3(-25., 25., 0.));
+                .position_set(vec2(-25., 25.));
         }
     }
 

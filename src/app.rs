@@ -1,9 +1,10 @@
-use crate::object2d::Objects2d;
+use crate::object::Objects;
+use crate::shape::Shape;
 
 
 #[derive(Default)]
 pub struct App {
-    pub objects: Objects2d,
+    pub objects2d: Objects<Shape>,
 }
 
 impl App {
