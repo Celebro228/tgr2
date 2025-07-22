@@ -1,6 +1,18 @@
 use std::sync::{Mutex, Arc};
 use glam::Vec2;
 
+use crate::object::Object;
+use crate::draw::Draw;
+
+
+pub fn circle(r: f32) -> Object<Shape> {
+    Object::new(Shape::default(), Draw{})
+}
+
+pub fn rect(w: f32, h: f32) -> Object<Shape> {
+    Object::new(Shape::default(), Draw{})
+}
+
 
 #[derive(Default)]
 pub struct Shape {

@@ -1,41 +1,43 @@
-#[cfg(test)]
+fn main() {
+    tests::window();
+}
+
+
 mod tests {
     use tgr2::*;
 
 
-    #[test]
-    fn shapes() {
+    pub fn _shapes() {
         Engine::new()
-            .module(ShapesTest)
-            .run("Module");
+            .module(_ShapesTest)
+            .run("Shapes");
     }
 
-    struct ShapesTest;
+    struct _ShapesTest;
 
-    impl Module for ShapesTest {
+    impl Module for _ShapesTest {
         fn ready(&mut self, app: &App) {
-            app.objects2d.add("test_circle", Circle(25.))
-                .obj()
-                .position_set(vec2(25., 25.));
-            app.objects2d.add("test_rect", Rect(25., 25.))
-                .obj()
-                .position_set(vec2(-25., 25.));
+            let circle = circle(25.);
+            circle.obj().position_set(vec2(25., 25.));
+
+
+            app.objects2d.add("test_circle", circle);
+            app.objects2d.add("test_rect", rect(25., 25.));
         }
     }
 
 
-    #[test]
-    fn module() {
+    pub fn _module() {
         Engine::new()
-            .module(ModuleTest { number: 0 })
+            .module(_ModuleTest { number: 0 })
             .run("Module");
     }
 
-    struct ModuleTest {
+    struct _ModuleTest {
         number: usize
     }
 
-    impl Module for ModuleTest {
+    impl Module for _ModuleTest {
         fn procces(&mut self, _app: &App) {
             self.number += 1;
             println!("Hello! {}", self.number)
@@ -43,8 +45,7 @@ mod tests {
     }
 
 
-    #[test]
-    fn window() {
+    pub fn window() {
         Engine::new().run("Window");
     }
 }
