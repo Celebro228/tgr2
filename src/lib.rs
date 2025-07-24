@@ -1,3 +1,4 @@
+use glam::Mat4;
 use miniquad::*;
 
 pub use glam::{vec2, vec3, vec4, Vec2, Vec3, Vec4};
@@ -10,8 +11,8 @@ pub use app::*;
 pub mod module;
 pub use module::*;
 
-pub mod object;
-pub use object::*;
+pub mod object2d;
+pub use object2d::*;
 
 pub mod draw;
 pub use draw::*;
@@ -109,37 +110,11 @@ struct Render {
     // Render
     ctx: Box<dyn RenderingBackend>,
     pipeline: Pipeline,
-    bindings: Bindings,
 }
 
 impl Render {
-    pub fn new(app: App, modules: Modules) -> Self {
+    pub fn new(mut app: App, modules: Modules) -> Self {
         let mut ctx: Box<dyn RenderingBackend> = window::new_rendering_backend();
-
-
-        let vertices: [Vertex; 3] = [
-            Vertex { pos : [ -0.5, -0.5 ], color: [1., 0., 0., 1.] },
-            Vertex { pos : [  0.5, -0.5 ], color: [0., 1., 0., 1.] },
-            Vertex { pos : [  0.0,  0.5 ], color: [0., 0., 1., 1.] },
-        ];
-        let vertex_buffer = ctx.new_buffer(
-            BufferType::VertexBuffer,
-            BufferUsage::Immutable,
-            BufferSource::slice(&vertices),
-        );
-
-        let indices: [u16; 3] = [0, 1, 2];
-        let index_buffer = ctx.new_buffer(
-            BufferType::IndexBuffer,
-            BufferUsage::Immutable,
-            BufferSource::slice(&indices),
-        );
-
-        let bindings = Bindings {
-            vertex_buffers: vec![vertex_buffer],
-            index_buffer: index_buffer,
-            images: vec![],
-        };
 
 
         let shader = ctx
@@ -176,36 +151,78 @@ impl Render {
         );
 
 
+        app.objects2d.update();
+
+
         Self {
             app,
             modules,
             ctx,
             pipeline,
-            bindings,
         }
     }
 }
 
 impl EventHandler for Render {
     fn update(&mut self) {
-        self.app = self.modules.update(&mut self.app);  
+        self.app = self.modules.update(&mut self.app);
+        self.app.objects2d.update();
     }
 
     fn draw(&mut self) {
         self.ctx.begin_default_pass(Default::default());
 
         self.ctx.apply_pipeline(&self.pipeline);
-        self.ctx.apply_bindings(&self.bindings);
-        self.ctx.draw(0, 3, 1);
+
+
+        let canvas = vec2(50., 50.);
+
+        let window = window::screen_size();
+        let window = vec2(window.0, window.1) / 2.;
+
+        let aspect_window = window.x / window.y;
+        let aspect_canvas = canvas.x / canvas.y;
+
+        let scale = canvas.x / (aspect_canvas / aspect_window);
+        let mvp = Mat4::orthographic_rh_gl(
+            -scale,
+            scale,
+            -canvas.y,
+            canvas.y,
+            -1.,
+            1.
+        );
+
+        self.ctx.apply_uniforms(UniformsSource::table(&shader::Uniforms {
+            mvp,
+        }));
+
+
+        for draw in self.app.objects2d.get_draw() {
+            let vertex_buffer = self.ctx.new_buffer(
+                BufferType::VertexBuffer,
+                BufferUsage::Immutable,
+                BufferSource::slice(draw.0),
+            );
+
+            let index_buffer = self.ctx.new_buffer(
+                BufferType::IndexBuffer,
+                BufferUsage::Immutable,
+                BufferSource::slice(draw.1),
+            );
+
+            let bindings = Bindings {
+                vertex_buffers: vec![vertex_buffer],
+                index_buffer: index_buffer,
+                images: vec![],
+            };
+
+            self.ctx.apply_bindings(&bindings);
+            self.ctx.draw(0, draw.1.len() as i32, 1);
+        }
+
         self.ctx.end_render_pass();
 
         self.ctx.commit_frame();
     }
-}
-
-
-#[repr(C)]
-struct Vertex {
-    pos: [f32; 2],
-    color: [f32; 4],
 }

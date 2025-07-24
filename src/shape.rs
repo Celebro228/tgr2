@@ -1,67 +1,18 @@
-use std::sync::{Mutex, Arc};
-use glam::Vec2;
+use glam::vec2;
 
-use crate::object::Object;
-use crate::draw::Draw;
-
-
-pub fn circle(r: f32) -> Object<Shape> {
-    Object::new(Shape::default(), Draw{})
-}
-
-pub fn rect(w: f32, h: f32) -> Object<Shape> {
-    Object::new(Shape::default(), Draw{})
-}
+use crate::object2d::Object2d;
+use crate::draw::{Vertex, Color};
 
 
-#[derive(Default)]
-pub struct Shape {
-    // Transform
-    position: Arc<Mutex<Vec2>>,
-    rotation: Arc<Mutex<Vec2>>,
-    scale: Arc<Mutex<Vec2>>,
-}
+pub fn rect(w: f32, h: f32) -> Object2d {
+    let verts = vec![
+        Vertex::new(vec2(-w, -h), Color::new(1., 0., 0., 1.)),
+        Vertex::new(vec2(w, -h), Color::new(0., 1., 0., 1.)),
+        Vertex::new(vec2(w, h), Color::new(0., 1., 1., 1.)),
+        Vertex::new(vec2(-w, h), Color::new(0., 0., 1., 1.)),
+    ];
 
-impl Shape {
-    pub fn position_set(&self, v: Vec2) {
-        let mut position_lock = self.position
-            .lock()
-            .expect("Failed set position of object2d");
-        *position_lock = v;
-    }
+    let indis = vec![0, 1, 2, 2, 3, 0];
 
-    pub fn position_get(&self) -> Vec2 {
-        let position_lock = self.position
-            .lock()
-            .expect("Failed get position of object2d");
-        position_lock.clone()
-    }
-
-    pub fn rotation_set(&self, v: Vec2) {
-        let mut rotation_lock = self.rotation
-            .lock()
-            .expect("Failed set rotation of object2d");
-        *rotation_lock = v;
-    }
-
-    pub fn rotation_get(&self) -> Vec2 {
-        let rotation_lock = self.rotation
-            .lock()
-            .expect("Failed get rotation of object2d");
-        rotation_lock.clone()
-    }
-
-    pub fn scale_set(&self, v: Vec2) {
-        let mut scale_lock = self.scale
-            .lock()
-            .expect("Failed set scale of object2d");
-        *scale_lock = v;
-    }
-
-    pub fn scale_get(&self) -> Vec2 {
-        let scale_lock = self.scale
-            .lock()
-            .expect("Failed get scale of object2d");
-        scale_lock.clone()
-    }
+    Object2d::new(verts, indis)
 }
