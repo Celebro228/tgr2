@@ -14,6 +14,9 @@ pub use module::*;
 pub mod object2d;
 pub use object2d::*;
 
+pub mod camera2d;
+pub use camera2d::*;
+
 pub mod draw;
 pub use draw::*;
 
@@ -30,8 +33,8 @@ Todo:
 [#] Логика модулей
 [#] Добавление 2д объектов
 [#] Изменение 2д объектов
-[?] Добавить update и/или draw в objects
-[?] Рисование 2д объектов
+[#] Добавить update и/или draw в objects
+[#] Рисование 2д объектов
 [] Добавление 3д объектов
 [] Изменение 3д объектов
 [] Рисование 3д объектов
@@ -193,12 +196,13 @@ impl EventHandler for Render {
             1.
         );
 
-        self.ctx.apply_uniforms(UniformsSource::table(&shader::Uniforms {
-            mvp,
-        }));
-
 
         for draw in self.app.objects2d.get_draw() {
+            self.ctx.apply_uniforms(UniformsSource::table(&shader::Uniforms {
+                mvp,
+                transform: draw.2,
+            }));
+
             let vertex_buffer = self.ctx.new_buffer(
                 BufferType::VertexBuffer,
                 BufferUsage::Immutable,

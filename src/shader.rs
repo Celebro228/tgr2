@@ -9,9 +9,10 @@ attribute vec4 in_color;
 varying lowp vec4 color;
 
 uniform mat4 mvp;
+uniform mat4 transform;
 
 void main() {
-    gl_Position = mvp * vec4(in_pos, 0, 1);
+    gl_Position = mvp * transform * vec4(in_pos, 0, 1);
     color = in_color;
 }"#;
 
@@ -27,7 +28,10 @@ pub(crate) fn meta() -> ShaderMeta {
     ShaderMeta {
         images: vec![],
         uniforms: UniformBlockLayout {
-            uniforms: vec![UniformDesc::new("mvp", UniformType::Mat4)],
+            uniforms: vec![
+                UniformDesc::new("mvp", UniformType::Mat4),
+                UniformDesc::new("transform", UniformType::Mat4),
+            ],
         },
     }
 }
@@ -35,4 +39,5 @@ pub(crate) fn meta() -> ShaderMeta {
  #[repr(C)]
 pub(crate) struct Uniforms {
     pub mvp: Mat4,
+    pub transform: Mat4,
 }

@@ -1,6 +1,6 @@
 use std::sync::{Mutex, Arc};
 use hashbrown::HashMap;
-use glam::Vec2;
+use glam::{vec3, Mat4, Vec2};
 
 use crate::draw::Vertex;
 
@@ -33,7 +33,7 @@ impl Objects2d {
         }
     }
 
-    pub(crate) fn get_draw(&self) -> Vec<(&Vec<Vertex>, &Vec<u16>)> {
+    pub(crate) fn get_draw(&self) -> Vec<(&Vec<Vertex>, &Vec<u16>, Mat4)> {
         let mut draw = Vec::new();
 
         for obj in &self.object_list {
@@ -51,8 +51,8 @@ pub struct Object2d {
 
     // Transwofm
     position: Arc<Mutex<Vec2>>,
-    rotation: Arc<Mutex<Vec2>>,
     scale: Arc<Mutex<Vec2>>,
+    rotation: Arc<Mutex<f32>>,
 }
 
 impl Object2d {
@@ -61,13 +61,26 @@ impl Object2d {
             verts,
             indis,
             position: Arc::new(Mutex::new(Vec2::ZERO)),
-            rotation: Arc::new(Mutex::new(Vec2::ZERO)),
             scale: Arc::new(Mutex::new(Vec2::ONE)),
+            rotation: Arc::new(Mutex::new(0.)),
         }
     }
 
-    pub(crate) fn get_draw(&self) -> (&Vec<Vertex>, &Vec<u16>) {
-        (&self.verts, &self.indis)
+    pub(crate) fn get_draw(&self) -> (&Vec<Vertex>, &Vec<u16>, Mat4) {
+        let position = self.position_get();
+        let position = vec3(position.x, position.y, 0.);
+        let position = Mat4::from_translation(position);
+
+        let scale = self.scale_get();
+        let scale = vec3(scale.x, scale.y, 1.);
+        let scale = Mat4::from_scale(scale);
+        
+        let rotation = self.rotation_get();
+        let rotation = Mat4::from_rotation_z(rotation);
+
+        let mat = position * rotation * scale;
+
+        (&self.verts, &self.indis, mat)
     }
 
     pub fn position_set(&self, v: Vec2) {
@@ -84,20 +97,6 @@ impl Object2d {
         position_lock.clone()
     }
 
-    pub fn rotation_set(&self, v: Vec2) {
-        let mut rotation_lock = self.rotation
-            .lock()
-            .expect("Failed set rotation of object2d");
-        *rotation_lock = v;
-    }
-
-    pub fn rotation_get(&self) -> Vec2 {
-        let rotation_lock = self.rotation
-            .lock()
-            .expect("Failed get rotation of object2d");
-        rotation_lock.clone()
-    }
-
     pub fn scale_set(&self, v: Vec2) {
         let mut scale_lock = self.scale
             .lock()
@@ -110,6 +109,20 @@ impl Object2d {
             .lock()
             .expect("Failed get scale of object2d");
         scale_lock.clone()
+    }
+
+    pub fn rotation_set(&self, v: f32) {
+        let mut rotation_lock = self.rotation
+            .lock()
+            .expect("Failed set rotation of object2d");
+        *rotation_lock = v;
+    }
+
+    pub fn rotation_get(&self) -> f32 {
+        let rotation_lock = self.rotation
+            .lock()
+            .expect("Failed get rotation of object2d");
+        rotation_lock.clone()
     }
 }
 

@@ -7,6 +7,9 @@ mod tests {
     use tgr2::*;
 
 
+
+
+
     pub fn _shapes() {
         Engine::new()
             .module(_ShapesTest)
@@ -18,6 +21,8 @@ mod tests {
     impl Module for _ShapesTest {
         fn ready(&mut self, app: &App) {
             let circle = rect(50., 50.);
+            circle.position_set(vec2(25., 25.));
+            circle.rotation_set(1.);
 
             app.objects2d.add("test_circle", circle);
             app.objects2d.add("test_rect", rect(25., 25.));
