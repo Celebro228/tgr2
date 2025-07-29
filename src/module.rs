@@ -1,5 +1,4 @@
 use std::any::Any;
-use std::mem;
 use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 
 use crate::app::App;
@@ -16,14 +15,10 @@ impl Modules {
         self.module_list.push(Box::new(module));
     }
 
-    pub(crate) fn update(&mut self, app: &mut App) -> App {
-        let app = mem::take(app);
-
+    pub(crate) fn update(&mut self, app: &mut App) {
         self.module_list.par_iter_mut().for_each(|module| {
             module.procces(&app);
         });
-
-        app
     }
 }
 

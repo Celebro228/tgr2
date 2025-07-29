@@ -1,5 +1,5 @@
 fn main() {
-    tests::_shapes();
+    tests::_info();
 }
 
 
@@ -7,7 +7,41 @@ mod tests {
     use tgr2::*;
 
 
+    pub fn _info() {
+        Engine::new()
+            .module(_Info)
+            .run("info");
+    }
 
+    struct _Info;
+
+    impl Module for _Info {
+        fn ready(&mut self, app: &App) {
+            println!("os: {:?}", app.info.os);
+            println!("time: {:?}", app.info.time);
+        }
+
+        fn procces(&mut self, app: &App) {
+            println!("delta: {}, fps: {}", app.info.delta, app.info.fps);
+        }
+    }
+
+
+    pub fn _benchmark() {
+        Engine::new()
+            .module(_Benchmark)
+            .run("benchmark");
+    }
+
+    struct _Benchmark;
+
+    impl Module for _Benchmark {
+        fn ready(&mut self, app: &App) {
+            for i in 0..1000 {
+                app.objects2d.add(&i.to_string(), rect(25., 25.));
+            }
+        }
+    }
 
 
     pub fn _shapes() {
@@ -26,6 +60,12 @@ mod tests {
 
             app.objects2d.add("test_circle", circle);
             app.objects2d.add("test_rect", rect(25., 25.));
+        }
+
+        fn procces(&mut self, app: &App) {
+            let rect = app.objects2d.get("test_rect").unwrap();
+            let rot = rect.rotation_get();
+            rect.rotation_set(rot + 0.001);
         }
     }
 

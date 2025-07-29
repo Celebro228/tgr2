@@ -14,14 +14,14 @@ pub use module::*;
 pub mod object2d;
 pub use object2d::*;
 
-pub mod camera2d;
-pub use camera2d::*;
-
 pub mod draw;
 pub use draw::*;
 
 pub mod shape;
 pub use shape::*;
+
+pub mod info;
+pub use info::*;
 
 
 /*
@@ -35,6 +35,7 @@ Todo:
 [#] Изменение 2д объектов
 [#] Добавить update и/или draw в objects
 [#] Рисование 2д объектов
+[?] Создать info
 [] Добавление 3д объектов
 [] Изменение 3д объектов
 [] Рисование 3д объектов
@@ -70,7 +71,7 @@ pub struct Engine {
 impl Engine {
     pub fn new() -> Self {
         Self {
-            app: App::default(),
+            app: App::new(date::now()),
             modules: Modules::default(),
         }
     }
@@ -83,17 +84,25 @@ impl Engine {
     pub fn run(self, title: &str) {
         let conf = conf::Conf {
             window_title: title.to_string(),
-            window_resizable: true,
-            fullscreen: false,
             high_dpi: true,
+
+            // Окно в режиме демага
+            #[cfg(debug_assertions)]
+            window_resizable: true,
+            #[cfg(debug_assertions)]
+            fullscreen: false,
+            
+            // Окно в режиме релиза
+            #[cfg(not(debug_assertions))]
+            window_resizable: false,
+            #[cfg(not(debug_assertions))]
+            fullscreen: true,
 
             // Msaa
             #[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
             sample_count: 4,
-
             #[cfg(any(target_os = "android", target_os = "ios"))]
             sample_count: 2,
-
             #[cfg(target_arch = "wasm32")]
             sample_count: 1,
             
@@ -168,8 +177,9 @@ impl Render {
 
 impl EventHandler for Render {
     fn update(&mut self) {
-        self.app = self.modules.update(&mut self.app);
-        self.app.objects2d.update();
+        self.app.pre_update(date::now());
+        self.modules.update(&mut self.app);
+        self.app.post_update();
     }
 
     fn draw(&mut self) {
@@ -197,7 +207,7 @@ impl EventHandler for Render {
         );
 
 
-        for draw in self.app.objects2d.get_draw() {
+        for draw in self.app.draw() {
             self.ctx.apply_uniforms(UniformsSource::table(&shader::Uniforms {
                 mvp,
                 transform: draw.2,

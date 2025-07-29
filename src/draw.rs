@@ -32,10 +32,6 @@ impl Color {
         Self { r, g, b, a }
     }
 
-    pub fn get(&self) -> [f32; 4] {
-        [self.r, self.g, self.b, self.a]
-    }
-
     pub fn rgb(r: u8, g: u8, b: u8) -> Self {
         Self {
             r: r as f32 / 255.,
