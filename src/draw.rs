@@ -1,15 +1,15 @@
-use glam::Vec2;
+use glam::Vec3;
 
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub(crate) struct Vertex {
-    pub(crate) pos: Vec2,
+    pub(crate) pos: Vec3,
     pub(crate) color: Color,
 }
 
 impl Vertex {
-    pub(crate) fn new(p: Vec2, c: Color) -> Self {
+    pub(crate) fn new(p: Vec3, c: Color) -> Self {
         Self {
             pos: p,
             color: c,

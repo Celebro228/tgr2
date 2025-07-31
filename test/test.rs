@@ -1,5 +1,5 @@
 fn main() {
-    tests::_info();
+    tests::_shapes();
 }
 
 
@@ -12,15 +12,12 @@ mod tests {
             .module(_Info)
             .run("info");
     }
-
     struct _Info;
-
     impl Module for _Info {
         fn ready(&mut self, app: &App) {
             println!("os: {:?}", app.info.os);
             println!("time: {:?}", app.info.time);
         }
-
         fn procces(&mut self, app: &App) {
             println!("delta: {}, fps: {}", app.info.delta, app.info.fps);
         }
@@ -32,14 +29,15 @@ mod tests {
             .module(_Benchmark)
             .run("benchmark");
     }
-
     struct _Benchmark;
-
     impl Module for _Benchmark {
         fn ready(&mut self, app: &App) {
             for i in 0..1000 {
                 app.objects2d.add(&i.to_string(), rect(25., 25.));
             }
+        }
+        fn procces(&mut self, app: &App) {
+            println!("{}", 1. / app.info.delta);
         }
     }
 
@@ -49,9 +47,7 @@ mod tests {
             .module(_ShapesTest)
             .run("Shapes");
     }
-
     struct _ShapesTest;
-
     impl Module for _ShapesTest {
         fn ready(&mut self, app: &App) {
             let circle = rect(50., 50.);
@@ -61,11 +57,10 @@ mod tests {
             app.objects2d.add("test_circle", circle);
             app.objects2d.add("test_rect", rect(25., 25.));
         }
-
         fn procces(&mut self, app: &App) {
             let rect = app.objects2d.get("test_rect").unwrap();
             let rot = rect.rotation_get();
-            rect.rotation_set(rot + 0.001);
+            rect.rotation_set(rot + app.info.delta);
         }
     }
 
@@ -75,11 +70,9 @@ mod tests {
             .module(_ModuleTest { number: 0 })
             .run("Module");
     }
-
     struct _ModuleTest {
         number: usize
     }
-
     impl Module for _ModuleTest {
         fn procces(&mut self, _app: &App) {
             self.number += 1;
