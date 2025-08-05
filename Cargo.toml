@@ -11,9 +11,11 @@ path = "test/test.rs"
 
 # Зависимости
 [dependencies]
-glam = "0.30.4"
+glam = "0.30.5"
 hashbrown = "0.15.4"
 miniquad = "0.4.8"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 rayon = "1.10.0"
 
 

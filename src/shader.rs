@@ -1,6 +1,5 @@
-use miniquad::{ShaderMeta, UniformBlockLayout, UniformDesc, UniformType};
 use glam::Mat4;
-
+use miniquad::{ShaderMeta, UniformBlockLayout, UniformDesc, UniformType};
 
 pub(crate) const VERTEX: &str = r#"#version 100
 attribute vec3 in_pos;
@@ -23,7 +22,6 @@ void main() {
     gl_FragColor = color;
 }"#;
 
-
 pub(crate) fn meta() -> ShaderMeta {
     ShaderMeta {
         images: vec![],
@@ -36,7 +34,7 @@ pub(crate) fn meta() -> ShaderMeta {
     }
 }
 
- #[repr(C)]
+#[repr(C)]
 pub(crate) struct Uniforms {
     pub mvp: Mat4,
     pub transform: Mat4,

@@ -1,6 +1,5 @@
 use glam::Vec3;
 
-
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub(crate) struct Vertex {
@@ -10,13 +9,9 @@ pub(crate) struct Vertex {
 
 impl Vertex {
     pub(crate) fn new(p: Vec3, c: Color) -> Self {
-        Self {
-            pos: p,
-            color: c,
-        }
+        Self { pos: p, color: c }
     }
 }
-
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]

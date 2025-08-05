@@ -2,15 +2,30 @@ fn main() {
     tests::_shapes();
 }
 
-
 mod tests {
     use tgr2::*;
 
+    /*pub fn _model() {
+        Engine::new()
+            .module(_Model)
+            .run("model");
+    }
+    struct _Model;
+    impl Module for _Model {
+        fn ready(&mut self, app: &App) {
+            let cube = cube(2., 2., 2.);
+            app.objects3d.add("test_cube", cube);
+        }
+        fn procces(&mut self, app: &App) {
+            let cube = app.objects3d.get("test_rect").unwrap();
+            let mut rot = cube.rotation_get();
+            rot.x += app.info.delta;
+            cube.rotation_set(rot);
+        }
+    }*/
 
     pub fn _info() {
-        Engine::new()
-            .module(_Info)
-            .run("info");
+        Engine::new().module(_Info).run("info");
     }
     struct _Info;
     impl Module for _Info {
@@ -23,11 +38,8 @@ mod tests {
         }
     }
 
-
     pub fn _benchmark() {
-        Engine::new()
-            .module(_Benchmark)
-            .run("benchmark");
+        Engine::new().module(_Benchmark).run("benchmark");
     }
     struct _Benchmark;
     impl Module for _Benchmark {
@@ -41,29 +53,25 @@ mod tests {
         }
     }
 
-
     pub fn _shapes() {
-        Engine::new()
-            .module(_ShapesTest)
-            .run("Shapes");
+        Engine::new().module(_ShapesTest).run("Shapes");
     }
     struct _ShapesTest;
     impl Module for _ShapesTest {
         fn ready(&mut self, app: &App) {
             let circle = rect(50., 50.);
-            circle.position_set(vec2(25., 25.));
-            circle.rotation_set(1.);
+            circle.position.set(vec2(25., 25.));
+            circle.rotation.set(1.);
 
             app.objects2d.add("test_circle", circle);
             app.objects2d.add("test_rect", rect(25., 25.));
         }
         fn procces(&mut self, app: &App) {
             let rect = app.objects2d.get("test_rect").unwrap();
-            let rot = rect.rotation_get();
-            rect.rotation_set(rot + app.info.delta);
+            let rot = *rect.rotation.lock();
+            rect.rotation.set(rot + app.info.delta);
         }
     }
-
 
     pub fn _module() {
         Engine::new()
@@ -71,7 +79,7 @@ mod tests {
             .run("Module");
     }
     struct _ModuleTest {
-        number: usize
+        number: usize,
     }
     impl Module for _ModuleTest {
         fn procces(&mut self, _app: &App) {
@@ -79,7 +87,6 @@ mod tests {
             println!("Hello! {}", self.number)
         }
     }
-
 
     pub fn _window() {
         Engine::new().run("Window");

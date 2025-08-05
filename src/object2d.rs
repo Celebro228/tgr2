@@ -1,21 +1,16 @@
-use std::sync::{Mutex, Arc};
 use hashbrown::HashMap;
-use glam::{vec3, Mat4, Vec2};
 
+use crate::cross::*;
 use crate::draw::Vertex;
-
-
 #[derive(Default)]
 pub struct Objects2d {
     object_list: HashMap<String, Object2d>,
-    object_add_list: Arc<Mutex<Vec<(String, Object2d)>>>
+    object_add_list: Data<Vec<(String, Object2d)>>,
 }
 
 impl Objects2d {
     pub fn add(&self, name: &str, object: Object2d) {
-        let mut object_add_list_lock = self.object_add_list
-            .lock()
-            .expect("Failed add object to object_add_list");
+        let mut object_add_list_lock = self.object_add_list.lock();
         object_add_list_lock.push((name.to_string(), object));
     }
 
@@ -24,9 +19,7 @@ impl Objects2d {
     }
 
     pub(crate) fn update(&mut self) {
-        let mut object_add_list_lock = self.object_add_list
-            .lock()
-            .expect("Failed get object add list for object list");
+        let mut object_add_list_lock = self.object_add_list.lock();
 
         for obj in object_add_list_lock.drain(..) {
             self.object_list.insert(obj.0, obj.1);
@@ -44,16 +37,15 @@ impl Objects2d {
     }
 }
 
-
 pub struct Object2d {
     verts: Vec<Vertex>,
     indis: Vec<u16>,
 
     // Transwofm
-    position: Arc<Mutex<Vec2>>,
-    scale: Arc<Mutex<Vec2>>,
-    rotation: Arc<Mutex<f32>>,
-    depht: Arc<Mutex<f32>>,
+    pub position: Data<Vec2>,
+    pub scale: Data<Vec2>,
+    pub rotation: Data<f32>,
+    pub depht: Data<f32>,
 }
 
 impl Object2d {
@@ -61,87 +53,30 @@ impl Object2d {
         Self {
             verts,
             indis,
-            position: Arc::new(Mutex::new(Vec2::ZERO)),
-            scale: Arc::new(Mutex::new(Vec2::ONE)),
-            rotation: Arc::new(Mutex::new(0.)),
-            depht: Arc::new(Mutex::new(0.)),
+            position: Data::new(Vec2::ZERO),
+            scale: Data::new(Vec2::ONE),
+            rotation: Data::new(0.),
+            depht: Data::new(0.),
         }
     }
 
     pub(crate) fn get_draw(&self) -> (&Vec<Vertex>, &Vec<u16>, Mat4) {
-        let position = self.position_get();
-        let position = vec3(position.x, position.y, self.depht_get());
+        let position = *self.position.lock();
+        let position = vec3(position.x, position.y, *self.depht.lock());
         let position = Mat4::from_translation(position);
 
-        let scale = self.scale_get();
+        let scale = *self.scale.lock();
         let scale = vec3(scale.x, scale.y, 1.);
         let scale = Mat4::from_scale(scale);
-        
-        let rotation = self.rotation_get();
+
+        let rotation = *self.rotation.lock();
         let rotation = Mat4::from_rotation_z(rotation);
 
         let mat = position * rotation * scale;
 
         (&self.verts, &self.indis, mat)
     }
-
-    pub fn position_set(&self, v: Vec2) {
-        let mut position_lock = self.position
-            .lock()
-            .expect("Failed set position of object2d");
-        *position_lock = v;
-    }
-
-    pub fn position_get(&self) -> Vec2 {
-        let position_lock = self.position
-            .lock()
-            .expect("Failed get position of object2d");
-        position_lock.clone()
-    }
-
-    pub fn scale_set(&self, v: Vec2) {
-        let mut scale_lock = self.scale
-            .lock()
-            .expect("Failed set scale of object2d");
-        *scale_lock = v;
-    }
-
-    pub fn scale_get(&self) -> Vec2 {
-        let scale_lock = self.scale
-            .lock()
-            .expect("Failed get scale of object2d");
-        scale_lock.clone()
-    }
-
-    pub fn rotation_set(&self, v: f32) {
-        let mut rotation_lock = self.rotation
-            .lock()
-            .expect("Failed set rotation of object2d");
-        *rotation_lock = v;
-    }
-
-    pub fn rotation_get(&self) -> f32 {
-        let rotation_lock = self.rotation
-            .lock()
-            .expect("Failed get rotation of object2d");
-        rotation_lock.clone()
-    }
-
-    pub fn depht_set(&self, v: f32) {
-        let mut depht_lock = self.depht
-            .lock()
-            .expect("Failed set depht of object2d");
-        *depht_lock = v;
-    }
-
-    pub fn depht_get(&self) -> f32 {
-        let depht_lock = self.depht
-            .lock()
-            .expect("Failed get depht of object2d");
-        depht_lock.clone()
-    }
 }
-
 
 /*pub struct ObjRef<'a, T> {
     object_add_list_lock: MutexGuard<'a, Vec<(String, T)>>

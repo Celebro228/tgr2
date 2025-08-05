@@ -1,8 +1,7 @@
-use std::any::Any;
+#[cfg(not(target_arch = "wasm32"))]
 use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 
 use crate::app::App;
-
 
 #[derive(Default)]
 pub(crate) struct Modules {
@@ -16,13 +15,18 @@ impl Modules {
     }
 
     pub(crate) fn update(&mut self, app: &mut App) {
-        self.module_list.par_iter_mut().for_each(|module| {
+        #[cfg(target_arch = "wasm32")]
+        let module_list_iter = self.module_list.iter_mut();
+        #[cfg(not(target_arch = "wasm32"))]
+        let module_list_iter = self.module_list.par_iter_mut();
+
+        module_list_iter.for_each(|module| {
             module.procces(&app);
         });
     }
 }
 
-
+use std::any::Any;
 pub trait Module: Any + Sync + Send {
     fn ready(&mut self, _app: &App) {}
     fn procces(&mut self, _app: &App) {}

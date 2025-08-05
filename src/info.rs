@@ -40,7 +40,6 @@ impl Info {
     }
 }
 
-
 #[derive(Debug)]
 pub enum OS {
     Windows,

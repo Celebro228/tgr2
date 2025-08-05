@@ -1,10 +1,9 @@
 use glam::Mat4;
 
 use crate::draw::Vertex;
+use crate::info::Info;
 use crate::object2d::Objects2d;
 use crate::object3d::Objects3d;
-use crate::info::Info;
-
 
 pub struct App {
     pub objects2d: Objects2d,
