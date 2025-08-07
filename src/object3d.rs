@@ -5,7 +5,7 @@ use crate::draw::Vertex;
 #[derive(Default)]
 pub struct Objects3d {
     object_list: HashMap<String, Object3d>,
-    object_add_list: Data<Vec<(String, Object3d)>>,
+    object_add_list: LData<Vec<(String, Object3d)>>,
 }
 
 impl Objects3d {
@@ -42,9 +42,9 @@ pub struct Object3d {
     indis: Vec<u16>,
 
     // Transwofm
-    pub position: Data<Vec3>,
-    pub scale: Data<Vec3>,
-    pub rotation: Data<Vec3>,
+    pub position: LData<Vec3>,
+    pub scale: LData<Vec3>,
+    pub rotation: LData<Vec3>,
 }
 
 impl Object3d {
@@ -52,9 +52,9 @@ impl Object3d {
         Self {
             verts,
             indis,
-            position: Data::new(Vec3::ZERO),
-            scale: Data::new(Vec3::ONE),
-            rotation: Data::new(Vec3::ZERO),
+            position: LData::new(Vec3::ZERO),
+            scale: LData::new(Vec3::ONE),
+            rotation: LData::new(Vec3::ZERO),
         }
     }
 

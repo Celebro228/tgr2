@@ -1,5 +1,5 @@
 fn main() {
-    tests::_shapes();
+    tests::_info();
 }
 
 mod tests {
@@ -27,6 +27,8 @@ mod tests {
     pub fn _info() {
         Engine::new().module(_Info).run("info");
     }
+    static _DATA_TEST: GData<usize> = GData::new(0);
+    static _DATA_COUNT: ACount = ACount::new(0);
     struct _Info;
     impl Module for _Info {
         fn ready(&mut self, app: &App) {
@@ -34,7 +36,9 @@ mod tests {
             println!("time: {:?}", app.info.time);
         }
         fn procces(&mut self, app: &App) {
-            println!("delta: {}, fps: {}", app.info.delta, app.info.fps);
+            *_DATA_TEST.lock() += 1;
+            _DATA_COUNT.add(1);
+            println!("delta: {}, fps: {}, data: {}", app.info.delta, app.info.fps, _DATA_TEST.lock());
         }
     }
 
@@ -60,16 +64,16 @@ mod tests {
     impl Module for _ShapesTest {
         fn ready(&mut self, app: &App) {
             let circle = rect(50., 50.);
-            circle.position.set(vec2(25., 25.));
-            circle.rotation.set(1.);
+            *circle.position.lock() = vec2(25., 25.);
+            *circle.rotation.lock() = 1.;
 
             app.objects2d.add("test_circle", circle);
             app.objects2d.add("test_rect", rect(25., 25.));
         }
         fn procces(&mut self, app: &App) {
             let rect = app.objects2d.get("test_rect").unwrap();
-            let rot = *rect.rotation.lock();
-            rect.rotation.set(rot + app.info.delta);
+            let mut rot = rect.rotation.lock();
+            *rot += app.info.delta;
         }
     }
 

@@ -1,7 +1,6 @@
-use glam::vec3;
-
 use crate::draw::{Color, Vertex};
 use crate::object2d::Object2d;
+use crate::cross::vec3;
 
 pub fn rect(w: f32, h: f32) -> Object2d {
     let verts = vec![

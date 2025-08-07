@@ -21,7 +21,7 @@ pub mod object3d;
 pub use object3d::*;
 
 pub mod model;
-pub use model::*;
+//pub use model::*;
 
 pub mod draw;
 pub use draw::*;
@@ -34,7 +34,7 @@ pub use cross::*;
 
 /*
 
-Todo:
+TODO:
 [#] Создание окна
 [#] Основная логика
 [#] Модули
@@ -65,7 +65,7 @@ lib - связь между устройством и движком {
     }
     app - состояние движка {
         audio
-        data
+        LData
         object
         shape
         model
