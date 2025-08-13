@@ -1,66 +1,31 @@
 use hashbrown::HashMap;
 
 use crate::cross::*;
-use crate::draw::Vertex;
-#[derive(Default)]
-pub struct Objects2d {
-    object_list: HashMap<String, Object2d>,
-    object_add_list: LData<Vec<(String, Object2d)>>,
-}
+use crate::object::*;
+use crate::render::Ctx;
 
-impl Objects2d {
-    pub fn add(&self, name: &str, object: Object2d) {
-        let mut object_add_list_lock = self.object_add_list.lock();
-        object_add_list_lock.push((name.to_string(), object));
-    }
 
-    pub fn get(&self, name: &str) -> Option<&Object2d> {
-        self.object_list.get(name)
-    }
 
-    pub(crate) fn update(&mut self) {
-        let mut object_add_list_lock = self.object_add_list.lock();
 
-        for obj in object_add_list_lock.drain(..) {
-            self.object_list.insert(obj.0, obj.1);
-        }
-    }
 
-    pub(crate) fn get_draw(&self) -> Vec<(&Vec<Vertex>, &Vec<u16>, Mat4)> {
-        let mut draw = Vec::new();
-
-        for obj in &self.object_list {
-            draw.push(obj.1.get_draw());
-        }
-
-        draw
-    }
-}
-
-pub struct Object2d {
-    verts: Vec<Vertex>,
-    indis: Vec<u16>,
-
+pub struct Shape {
     // Transwofm
     pub position: LData<Vec2>,
     pub scale: LData<Vec2>,
     pub rotation: LData<f32>,
     pub depht: LData<f32>,
+    
 }
-
-impl Object2d {
-    pub(crate) fn new(verts: Vec<Vertex>, indis: Vec<u16>) -> Self {
+impl Shape {
+    pub(crate) fn new() -> Self {
         Self {
-            verts,
-            indis,
             position: LData::new(Vec2::ZERO),
             scale: LData::new(Vec2::ONE),
             rotation: LData::new(0.),
             depht: LData::new(0.),
         }
     }
-
-    pub(crate) fn get_draw(&self) -> (&Vec<Vertex>, &Vec<u16>, Mat4) {
+    pub(crate) fn get_mat(&self) -> Mat4 {
         let position = *self.position.lock();
         let position = vec3(position.x, position.y, *self.depht.lock());
         let position = Mat4::from_translation(position);
@@ -72,11 +37,21 @@ impl Object2d {
         let rotation = *self.rotation.lock();
         let rotation = Mat4::from_rotation_z(rotation);
 
-        let mat = position * rotation * scale;
-
-        (&self.verts, &self.indis, mat)
+        position * rotation * scale
     }
 }
+impl Object for Shape {
+    fn update(&mut self) {
+        
+    }
+    fn draw(&mut self, ctx: &mut Ctx) {
+        
+    }
+}
+impl Object2d for Shape {}
+
+
+pub(crate) trait Object2d: Object {}
 
 /*pub struct ObjRef<'a, T> {
     object_add_list_lock: MutexGuard<'a, Vec<(String, T)>>

@@ -5,94 +5,37 @@ fn main() {
 mod tests {
     use tgr2::*;
 
-    /*pub fn _model() {
-        Engine::new()
-            .module(_Model)
-            .run("model");
-    }
-    struct _Model;
-    impl Module for _Model {
-        fn ready(&mut self, app: &App) {
-            let cube = cube(2., 2., 2.);
-            app.objects3d.add("test_cube", cube);
-        }
-        fn procces(&mut self, app: &App) {
-            let cube = app.objects3d.get("test_rect").unwrap();
-            let mut rot = cube.rotation_get();
-            rot.x += app.info.delta;
-            cube.rotation_set(rot);
-        }
-    }*/
-
-    pub fn _info() {
-        Engine::new().module(_Info).run("info");
-    }
-    static _DATA_TEST: GData<usize> = GData::new(0);
-    static _DATA_COUNT: ACount = ACount::new(0);
-    struct _Info;
-    impl Module for _Info {
-        fn ready(&mut self, app: &App) {
-            println!("os: {:?}", app.info.os);
-            println!("time: {:?}", app.info.time);
-        }
-        fn procces(&mut self, app: &App) {
-            *_DATA_TEST.lock() += 1;
-            _DATA_COUNT.add(1);
-            println!("delta: {}, fps: {}, data: {}", app.info.delta, app.info.fps, _DATA_TEST.lock());
-        }
-    }
-
     pub fn _benchmark() {
-        Engine::new().module(_Benchmark).run("benchmark");
+        let mut engine = Engine::new();
+        engine.modules.add(_Benchmark);
+        engine.run("benchmark");
     }
     struct _Benchmark;
-    impl Module for _Benchmark {
-        fn ready(&mut self, app: &App) {
+    impl ModuleEngine for _Benchmark {
+        fn ready(&mut self, app: &mut App) {
             for i in 0..1000 {
                 app.objects2d.add(&i.to_string(), rect(25., 25.));
             }
         }
-        fn procces(&mut self, app: &App) {
-            println!("{}", 1. / app.info.delta);
+        fn procces(&mut self, app: &mut App) {
+            println!("{}", app.info.fps);
         }
     }
 
-    pub fn _shapes() {
-        Engine::new().module(_ShapesTest).run("Shapes");
-    }
-    struct _ShapesTest;
-    impl Module for _ShapesTest {
-        fn ready(&mut self, app: &App) {
-            let circle = rect(50., 50.);
-            *circle.position.lock() = vec2(25., 25.);
-            *circle.rotation.lock() = 1.;
 
-            app.objects2d.add("test_circle", circle);
-            app.objects2d.add("test_rect", rect(25., 25.));
+    pub fn _info() {
+        let mut engine = Engine::new();
+        engine.modules.add(_Info);
+        engine.run("info");
+    }
+    struct _Info;
+    impl ModuleEngine for _Info {
+        fn ready(&mut self, app: &mut App) {
+            println!("os: {:?}", app.info.os);
+            println!("time: {:?}", app.info.time);
         }
-        fn procces(&mut self, app: &App) {
-            let rect = app.objects2d.get("test_rect").unwrap();
-            let mut rot = rect.rotation.lock();
-            *rot += app.info.delta;
+        fn procces(&mut self, app: &mut App) {
+            println!("delta: {}, fps: {}, fps_avg: {}", app.info.delta, 1. / app.info.delta, app.info.fps);
         }
-    }
-
-    pub fn _module() {
-        Engine::new()
-            .module(_ModuleTest { number: 0 })
-            .run("Module");
-    }
-    struct _ModuleTest {
-        number: usize,
-    }
-    impl Module for _ModuleTest {
-        fn procces(&mut self, _app: &App) {
-            self.number += 1;
-            println!("Hello! {}", self.number)
-        }
-    }
-
-    pub fn _window() {
-        Engine::new().run("Window");
     }
 }

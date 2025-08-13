@@ -1,4 +1,18 @@
-use glam::Vec3;
+use miniquad::*;
+use crate::cross::*;
+
+
+pub(crate) struct Draw {
+    bindings: Bindings,
+}
+impl Draw {
+    pub(crate) fn new(bindings: Bindings) -> Self {
+        Self {
+            bindings,
+        }
+    }
+}
+
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -6,12 +20,12 @@ pub(crate) struct Vertex {
     pub(crate) pos: Vec3,
     pub(crate) color: Color,
 }
-
 impl Vertex {
     pub(crate) fn new(p: Vec3, c: Color) -> Self {
         Self { pos: p, color: c }
     }
 }
+
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -21,12 +35,10 @@ pub struct Color {
     pub b: f32,
     pub a: f32,
 }
-
 impl Color {
     pub const fn new(r: f32, g: f32, b: f32, a: f32) -> Self {
         Self { r, g, b, a }
     }
-
     pub fn rgb(r: u8, g: u8, b: u8) -> Self {
         Self {
             r: r as f32 / 255.,
@@ -44,7 +56,6 @@ impl Color {
             a,
         }
     }
-
     pub fn hsv(h: f32, s: f32, v: f32) -> Self {
         let c = v * s;
         let h = h / 60.;

@@ -1,9 +1,13 @@
 use miniquad::*;
 
+mod draw;
 mod shader;
 
 mod render;
 use render::*;
+
+mod object;
+//use object::*;
 
 pub mod app;
 pub use app::*;
@@ -14,17 +18,8 @@ pub use module::*;
 pub mod object2d;
 pub use object2d::*;
 
-pub mod shape;
-pub use shape::*;
-
 pub mod object3d;
 pub use object3d::*;
-
-pub mod model;
-//pub use model::*;
-
-pub mod draw;
-pub use draw::*;
 
 pub mod info;
 pub use info::*;
@@ -56,16 +51,15 @@ TODO:
 [] Сохранение данных
 [] Создание TGR-CLI
 [] Мультиплеер
+[] Кроссплатформенность
 
 Структура:
 lib - связь между устройством и движком {
-    module - модули
-    render - рендер {
+    render: miniquad - рендер {
         shader
     }
     app - состояние движка {
         audio
-        LData
         object
         shape
         model
@@ -73,26 +67,23 @@ lib - связь между устройством и движком {
     }
 }
 singletoon {
-    cross
+    cross: rayon
+    module
+    utils: glam
 }
 */
 
 pub struct Engine {
-    app: App,
-    modules: Modules,
+    pub app: App,
+    pub modules: ModulesEngine,
 }
 
 impl Engine {
     pub fn new() -> Self {
         Self {
             app: App::new(date::now()),
-            modules: Modules::default(),
+            modules: ModulesEngine::default(),
         }
-    }
-
-    pub fn module(mut self, module: impl Module) -> Self {
-        self.modules.add_module(&self.app, module);
-        self
     }
 
     pub fn run(self, title: &str) {
@@ -129,12 +120,12 @@ impl Engine {
 
 struct Event {
     app: App,
-    modules: Modules,
+    modules: ModulesEngine,
     render: Render,
 }
 
 impl Event {
-    pub fn new(mut app: App, modules: Modules) -> Self {
+    pub fn new(mut app: App, modules: ModulesEngine) -> Self {
         app.post_update();
 
         Self {
@@ -146,13 +137,16 @@ impl Event {
 }
 
 impl EventHandler for Event {
+    // Работает и в фоне
     fn update(&mut self) {
-        self.app.pre_update(date::now());
-        self.modules.update(&mut self.app);
-        self.app.post_update();
+        self.app.pre_update(date::now()); // Обновление состояния
+        self.modules.update(&mut self.app); // Обновление модулей движка
+        self.app.post_update(); // Обновление модулей объектов
     }
 
+    // Только при открытом окне
     fn draw(&mut self) {
-        self.render.draw(&self.app);
+        self.render.pre_update(); // Ставит uniforms
+        self.render.post_update(); // Коммит фрейма
     }
 }

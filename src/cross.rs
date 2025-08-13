@@ -1,6 +1,23 @@
+#[cfg(not(target_arch = "wasm32"))]
+pub(crate) use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
+#[cfg(not(target_arch = "wasm32"))]
+pub(crate) use rayon::slice::IterMut;
+#[cfg(target_arch = "wasm32")]
+pub(crate) use std::slice::IterMut;
+#[cfg(not(target_arch = "wasm32"))]
+use std::sync::{atomic::*, Arc, Mutex, MutexGuard};
+
 pub(crate) use glam::Mat4;
 pub use glam::{Vec2, Vec3, Vec4, vec2, vec3, vec4};
-use std::sync::{atomic::*, Arc, Mutex, MutexGuard, OnceLock};
+pub(crate) use std::sync::OnceLock;
+
+
+pub(crate) fn cross_iter<T: Send>(v: &mut [T]) -> IterMut<'_, T> {
+    #[cfg(not(target_arch = "wasm32"))]
+    return v.par_iter_mut();
+    #[cfg(target_arch = "wasm32")]
+    return v.iter_mut();
+}
 
 
 /// Local Data
@@ -53,17 +70,17 @@ impl ACount {
             data: AtomicIsize::new(data),
         }
     }
-    pub fn get(&self) -> isize {
-        self.data.load(ORD_STATUS)
-    }
     pub fn set(&self, v: isize) {
         self.data.store(v, ORD_STATUS);
     }
-    pub fn add(&self, v: isize) {
-        self.data.fetch_add(v, ORD_STATUS);
+    pub fn get(&self) -> isize {
+        self.data.load(ORD_STATUS)
     }
-    pub fn sub(&self, v: isize) {
-        self.data.fetch_sub(v, ORD_STATUS);
+    pub fn add(&self, v: isize) -> isize {
+        self.data.fetch_add(v, ORD_STATUS)
+    }
+    pub fn sub(&self, v: isize) -> isize {
+        self.data.fetch_sub(v, ORD_STATUS)
     }
 }
 
@@ -78,19 +95,19 @@ impl ABool {
             data: AtomicBool::new(data),
         }
     }
-    pub fn get(&self) -> bool {
-        self.data.load(ORD_STATUS)
-    }
     pub fn set(&self, v: bool) {
         self.data.store(v, ORD_STATUS);
     }
-    pub fn and(&self, v: bool) {
-        self.data.fetch_and(v, ORD_STATUS);
+    pub fn get(&self) -> bool {
+        self.data.load(ORD_STATUS)
     }
-    pub fn or(&self, v: bool) {
-        self.data.fetch_or(v, ORD_STATUS);
+    pub fn not(&self) -> bool {
+        self.data.fetch_not(ORD_STATUS)
     }
-    pub fn not(&self) {
-        self.data.fetch_not(ORD_STATUS);
+    pub fn and(&self, v: bool) -> bool {
+        self.data.fetch_and(v, ORD_STATUS)
+    }
+    pub fn or(&self, v: bool) -> bool {
+        self.data.fetch_or(v, ORD_STATUS)
     }
 }

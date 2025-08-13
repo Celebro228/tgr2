@@ -30,13 +30,8 @@ impl Info {
 
     pub(crate) fn update(&mut self, time: f64) {
         self.delta = (time - self.time) as f32;
-
+        self.fps = 1. / self.delta;
         self.time = time;
-
-        let fps = 1. / self.delta;
-        let fps = self.fps - fps;
-        let fps = fps / self.fps;
-        self.fps = self.fps - fps;
     }
 }
 
