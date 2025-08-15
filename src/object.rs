@@ -1,7 +1,8 @@
+use std::any::Any;
 use crate::render::Ctx;
 
 
-pub(crate) trait Object {
+pub trait Object: Any + Sync + Send {
     fn update(&mut self);
     fn draw(&mut self, ctx: &mut Ctx);
 }

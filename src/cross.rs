@@ -20,22 +20,6 @@ pub(crate) fn cross_iter<T: Send>(v: &mut [T]) -> IterMut<'_, T> {
 }
 
 
-/// Local Data
-#[derive(Default, Clone)]
-pub struct LData<T> {
-    data: Arc<Mutex<T>>,
-}
-impl<T> LData<T> {
-    pub fn new(data: T) -> Self {
-        Self {
-            data: Arc::new(Mutex::new(data)),
-        }
-    }
-    pub fn lock(&self) -> MutexGuard<'_, T> {
-        self.data.lock().unwrap()
-    }
-}
-
 /// Global Data
 #[derive(Default)]
 pub struct GData<T> {
@@ -53,6 +37,22 @@ impl<T: Clone> GData<T> {
         self.data.get_or_init(|| {
             Mutex::new(self.buffer.clone())
         }).lock().unwrap()
+    }
+}
+
+/// Local Data
+#[derive(Default, Clone)]
+pub struct LData<T> {
+    data: Arc<Mutex<T>>,
+}
+impl<T> LData<T> {
+    pub fn new(data: T) -> Self {
+        Self {
+            data: Arc::new(Mutex::new(data)),
+        }
+    }
+    pub fn lock(&self) -> MutexGuard<'_, T> {
+        self.data.lock().unwrap()
     }
 }
 

@@ -54,7 +54,7 @@ impl Render {
 }
 
 
-pub(crate) struct Ctx {
+pub struct Ctx {
     render_backend: Box<dyn RenderingBackend>
 }
 impl Ctx {
@@ -145,7 +145,7 @@ impl Ctx {
         )
     }
 
-    pub(crate) fn draw_new(&mut self, verts: &Vec<Vertex>, indis: &Vec<u16>) -> Draw {
+    pub(crate) fn bindings_new(&mut self, verts: &Vec<Vertex>, indis: &Vec<u16>) -> Draw {
         let vertex_buffer = self.render_backend.new_buffer(
             BufferType::VertexBuffer,
             BufferUsage::Immutable,
@@ -161,6 +161,6 @@ impl Ctx {
             index_buffer: index_buffer,
             images: vec![],
         };
-        Draw::new(bindings)
+        Draw::new()
     }
 }

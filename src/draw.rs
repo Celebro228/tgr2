@@ -1,14 +1,14 @@
-use miniquad::*;
+use miniquad::Bindings;
 use crate::cross::*;
 
 
 pub(crate) struct Draw {
-    bindings: Bindings,
+    bindings: OnceLock<Bindings>,
 }
 impl Draw {
-    pub(crate) fn new(bindings: Bindings) -> Self {
+    pub(crate) fn new() -> Self {
         Self {
-            bindings,
+            bindings: OnceLock::new(),
         }
     }
 }

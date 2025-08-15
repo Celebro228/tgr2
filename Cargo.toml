@@ -16,7 +16,7 @@ hashbrown = "0.15.5"
 miniquad = "0.4.8"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-rayon = "1.10.0"
+rayon = "1.11.0"
 
 
 # Режим для разработчиков
