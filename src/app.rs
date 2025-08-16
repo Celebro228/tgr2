@@ -1,5 +1,7 @@
 use crate::info::Info;
+use crate::object::Object;
 use crate::object2d::Group2d;
+use crate::cross::*;
 
 
 pub struct App {
@@ -11,7 +13,7 @@ impl App {
     pub(crate) fn new(time: f64) -> Self {
         Self {
             info: Info::new(time),
-            objects2d: Group2d::new(),
+            objects2d: Group2d::default(),
         }
     }
 
@@ -20,6 +22,8 @@ impl App {
     }
 
     pub(crate) fn post_update(&mut self) {
-        
+        let mut objects2d = take(&mut self.objects2d);
+        objects2d.update(&self);
+        self.objects2d = objects2d;
     }
 }

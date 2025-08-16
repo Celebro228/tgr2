@@ -1,6 +1,7 @@
 use std::any::Any;
 
 use crate::app::App;
+use crate::object2d::*;
 use crate::cross::*;
 
 /*#[derive(Default)]
@@ -47,29 +48,36 @@ impl ModulesEngine {
         self.module_list.push(Box::new(module));
     }
 }
-
 pub trait ModuleEngine: Any + Sync + Send {
-    fn ready(&mut self, _app: &mut App) {}
-    fn procces(&mut self, _app: &mut App) {}
+    fn ready(&mut self, app: &mut App);
+    fn procces(&mut self, app: &mut App);
 }
 
 
 #[derive(Default)]
-pub struct ModulesObject {
-    module_list: Vec<Box<dyn Module>>,
+pub struct ModulesShape {
+    module_list: Vec<Box<dyn ModuleShape>>,
+    module_list_len: usize,
 }
-impl ModulesObject {
-    pub fn add(&mut self, module: impl Module) {
+impl ModulesShape {
+    pub fn add(&mut self, module: impl ModuleShape) {
         self.module_list.push(Box::new(module));
     }
-    pub(crate) fn update(&mut self, app: &App) {
+    pub(crate) fn update(&mut self, app: &App, obj: &Shape) {
+        for module in &mut self.module_list[self.module_list_len..] {
+            module.ready(app, obj);
+        }
+        self.module_list_len = self.module_list.len();
+
         cross_iter(&mut self.module_list).for_each(|module| {
-            module.procces(app);
+            module.procces(app, obj);
         });
     }
+    pub(crate) fn is_size(&self) -> bool {
+        self.module_list.len() != 0
+    }
 }
-
-pub trait Module: Any + Sync + Send {
-    fn ready(&mut self, _app: &App) {}
-    fn procces(&mut self, _app: &App) {}
+pub trait ModuleShape: Any + Sync + Send {
+    fn ready(&mut self, app: &App, obj: &Shape);
+    fn procces(&mut self, app: &App, obj: &Shape);
 }

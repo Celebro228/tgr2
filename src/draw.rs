@@ -4,11 +4,15 @@ use crate::cross::*;
 
 pub(crate) struct Draw {
     bindings: OnceLock<Bindings>,
+    indis: Vec<Vertex>,
+    verts: Vec<u16>,
 }
 impl Draw {
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(indis: Vec<Vertex>, verts: Vec<u16>) -> Self {
         Self {
             bindings: OnceLock::new(),
+            indis,
+            verts,
         }
     }
 }

@@ -1,27 +1,32 @@
 use hashbrown::HashMap;
 
+use crate::app::App;
 use crate::cross::*;
 use crate::object::*;
 use crate::render::Ctx;
 use crate::draw::Draw;
+use crate::module::ModulesShape;
 
 
+pub fn shape() -> Shape {
+    Shape::new(Draw::new(Vec::new(), Vec::new()))
+}
+
+
+#[derive(Default)]
 pub struct Group2d {
     pub object_list: HashMap<String, Box<dyn Object2d>>,
 }
 impl Group2d {
-    pub fn new() -> Self {
-        Self {
-            object_list: HashMap::new(),
-        }
-    }
     pub fn add(&mut self, name: &str, object: impl Object2d) {
         self.object_list.insert(name.to_string(), Box::new(object));
     }
 }
 impl Object for Group2d {
-    fn update(&mut self) {
-        
+    fn update(&mut self, app: &App) {
+        for (_, obj) in &mut self.object_list {
+            obj.update(app);
+        }
     }
     fn draw(&mut self, ctx: &mut Ctx) {
         
@@ -30,22 +35,20 @@ impl Object for Group2d {
 impl Object2d for Group2d {}
 
 
+#[derive(Default)]
 pub struct Factory2d {
     pub object_list: Vec<Shape>,
 }
 impl Factory2d {
-    pub fn new() -> Self {
-        Self {
-            object_list: Vec::new(),
-        }
-    }
     pub fn add(&mut self, shape: Shape) {
         self.object_list.push(shape);
     }
 }
 impl Object for Factory2d {
-    fn update(&mut self) {
-        
+    fn update(&mut self, app: &App) {
+        for obj in &mut self.object_list {
+            obj.update(app);
+        }
     }
     fn draw(&mut self, ctx: &mut Ctx) {
         
@@ -56,6 +59,7 @@ impl Object2d for Factory2d {}
 
 pub struct Shape {
     draw: Draw,
+    pub modules: ModulesShape,
 
     // Transwofm
     pub position: LData<Vec2>,
@@ -65,9 +69,10 @@ pub struct Shape {
     
 }
 impl Shape {
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(draw: Draw) -> Self {
         Self {
-            draw: Draw::new(),
+            draw,
+            modules: ModulesShape::default(),
             position: LData::new(Vec2::ZERO),
             scale: LData::new(Vec2::ONE),
             rotation: LData::new(0.),
@@ -90,8 +95,12 @@ impl Shape {
     }*/
 }
 impl Object for Shape {
-    fn update(&mut self) {
-        
+    fn update(&mut self, app: &App) {
+        if self.modules.is_size() {
+            let mut modules = take(&mut self.modules);
+            modules.update(app, &self);
+            self.modules = modules;
+        }
     }
     fn draw(&mut self, ctx: &mut Ctx) {
         

@@ -145,7 +145,7 @@ impl Ctx {
         )
     }
 
-    pub(crate) fn bindings_new(&mut self, verts: &Vec<Vertex>, indis: &Vec<u16>) -> Draw {
+    pub(crate) fn bindings_new(&mut self, verts: &Vec<Vertex>, indis: &Vec<u16>) {
         let vertex_buffer = self.render_backend.new_buffer(
             BufferType::VertexBuffer,
             BufferUsage::Immutable,
@@ -161,6 +161,5 @@ impl Ctx {
             index_buffer: index_buffer,
             images: vec![],
         };
-        Draw::new()
     }
 }

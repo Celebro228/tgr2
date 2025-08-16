@@ -11,12 +11,14 @@ pub(crate) use glam::Mat4;
 pub use glam::{Vec2, Vec3, Vec4, vec2, vec3, vec4};
 pub(crate) use std::sync::OnceLock;
 
+pub(crate) use std::mem::take;
+
 
 pub(crate) fn cross_iter<T: Send>(v: &mut [T]) -> IterMut<'_, T> {
-    #[cfg(not(target_arch = "wasm32"))]
-    return v.par_iter_mut();
     #[cfg(target_arch = "wasm32")]
     return v.iter_mut();
+    #[cfg(not(target_arch = "wasm32"))]
+    return v.par_iter_mut();
 }
 
 
