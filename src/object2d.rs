@@ -1,12 +1,25 @@
 use hashbrown::HashMap;
+use std::any::Any;
 
 use crate::app::App;
 use crate::cross::*;
 use crate::object::*;
 use crate::render::Ctx;
-use crate::draw::Draw;
-use crate::module::ModulesShape;
+use crate::draw::*;
 
+
+pub fn rect(w: f32, h: f32) -> Shape {
+    let verts = vec![
+        Vertex::new(vec3(-w, -h, 0.), Color::new(1., 0., 0., 1.)),
+        Vertex::new(vec3(w, -h, 0.), Color::new(0., 1., 0., 1.)),
+        Vertex::new(vec3(w, h, 0.), Color::new(0., 1., 1., 1.)),
+        Vertex::new(vec3(-w, h, 0.), Color::new(0., 0., 1., 1.)),
+    ];
+
+    let indis = vec![0, 1, 2, 2, 3, 0];
+
+    Shape::new(Draw::new(verts, indis))
+}
 
 pub fn shape() -> Shape {
     Shape::new(Draw::new(Vec::new(), Vec::new()))
@@ -28,8 +41,10 @@ impl Object for Group2d {
             obj.update(app);
         }
     }
-    fn draw(&mut self, ctx: &mut Ctx) {
-        
+    fn draw(&mut self, ctx: &mut Ctx, mvp: &Mat4) {
+        for (_, obj) in &mut self.object_list {
+            obj.draw(ctx, mvp);
+        }
     }
 }
 impl Object2d for Group2d {}
@@ -50,8 +65,10 @@ impl Object for Factory2d {
             obj.update(app);
         }
     }
-    fn draw(&mut self, ctx: &mut Ctx) {
-        
+    fn draw(&mut self, ctx: &mut Ctx, mvp: &Mat4) {
+        for obj in &mut self.object_list {
+            obj.draw(ctx, mvp);
+        }
     }
 }
 impl Object2d for Factory2d {}
@@ -80,6 +97,18 @@ impl Shape {
         }
     }
     /*pub(crate) fn get_mat(&self) -> Mat4 {
+        
+    }*/
+}
+impl Object for Shape {
+    fn update(&mut self, app: &App) {
+        if self.modules.is_size() {
+            let mut modules = take(&mut self.modules);
+            modules.update(app, &self);
+            self.modules = modules;
+        }
+    }
+    fn draw(&mut self, ctx: &mut Ctx, mvp: &Mat4) {
         let position = *self.position.lock();
         let position = vec3(position.x, position.y, *self.depht.lock());
         let position = Mat4::from_translation(position);
@@ -91,22 +120,40 @@ impl Shape {
         let rotation = *self.rotation.lock();
         let rotation = Mat4::from_rotation_z(rotation);
 
-        position * rotation * scale
-    }*/
-}
-impl Object for Shape {
-    fn update(&mut self, app: &App) {
-        if self.modules.is_size() {
-            let mut modules = take(&mut self.modules);
-            modules.update(app, &self);
-            self.modules = modules;
-        }
-    }
-    fn draw(&mut self, ctx: &mut Ctx) {
-        
+        let mvp = mvp * position * rotation * scale;
+        self.draw.draw(ctx, mvp);
     }
 }
 impl Object2d for Shape {}
+
+
+#[derive(Default)]
+pub struct ModulesShape {
+    module_list: Vec<Box<dyn ModuleShape>>,
+    module_list_len: usize,
+}
+impl ModulesShape {
+    pub fn add(&mut self, module: impl ModuleShape) {
+        self.module_list.push(Box::new(module));
+    }
+    pub(crate) fn update(&mut self, app: &App, obj: &Shape) {
+        for module in &mut self.module_list[self.module_list_len..] {
+            module.ready(app, obj);
+        }
+        self.module_list_len = self.module_list.len();
+
+        cross_iter(&mut self.module_list).for_each(|module| {
+            module.procces(app, obj);
+        });
+    }
+    pub(crate) fn is_size(&self) -> bool {
+        self.module_list.len() != 0
+    }
+}
+pub trait ModuleShape: Any + Sync + Send {
+    fn ready(&mut self, app: &App, obj: &Shape);
+    fn procces(&mut self, app: &App, obj: &Shape);
+}
 
 
 pub trait Object2d: Object {}

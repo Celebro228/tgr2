@@ -5,7 +5,7 @@ use crate::shader;
 
 
 pub(crate) struct Render {
-    ctx: Ctx,
+    pub(crate) ctx: Ctx,
     pipeline: Pipeline,
 }
 
@@ -16,13 +16,12 @@ impl Render {
         let pipeline = ctx.pipeline_new(shader);
         Self {
             ctx,
-            pipeline
+            pipeline,
         }
     }
 
     pub(crate) fn pre_update(&mut self) {
         self.ctx.frame(&self.pipeline);
-        self.ctx.mvp_2d();
     }
 
     pub(crate) fn post_update(&mut self) {
@@ -64,40 +63,6 @@ impl Ctx {
         }
     }
 
-    fn mvp_2d(&mut self) {
-        let canvas = vec2(50., 50.);
-        let window = window::screen_size();
-        let window = vec2(window.0, window.1) / 2.;
-        let aspect_window = window.x / window.y;
-        let aspect_canvas = canvas.x / canvas.y;
-        let scale = canvas.x / (aspect_canvas / aspect_window);
-        let mvp = Mat4::orthographic_rh_gl(
-            -scale,
-            scale,
-            -canvas.y,
-            canvas.y,
-            -1.,
-            1.
-        );
-        self.render_backend
-            .apply_uniforms(UniformsSource::table(&shader::Uniforms {
-                mvp,
-            }));
-    }
-
-    fn mvp_3d(&mut self) {
-        let (width, height) = window::screen_size();
-        let mvp = Mat4::perspective_rh_gl(
-            60.0f32.to_radians(),
-            width / height,
-            0.01, 10.0
-        );
-        self.render_backend
-            .apply_uniforms(UniformsSource::table(&shader::Uniforms {
-                mvp,
-            }));
-    }
-
     fn frame(&mut self, pipeline: &Pipeline) {
         self.render_backend.begin_default_pass(Default::default());
         self.render_backend.apply_pipeline(pipeline);
@@ -106,6 +71,45 @@ impl Ctx {
     fn commit(&mut self) {
         self.render_backend.end_render_pass();
         self.render_backend.commit_frame();
+    }
+
+    pub(crate) fn draw(&mut self, bindings: &Bindings, indis_len: i32) {
+        self.render_backend.apply_bindings(bindings);
+        self.render_backend.draw(0, indis_len, 1);
+    }
+
+    pub(crate) fn apply_mvp(&mut self, mvp: Mat4) {
+        self.render_backend
+            .apply_uniforms(UniformsSource::table(&shader::Uniforms {
+                mvp,
+            }));
+    }
+
+    pub(crate) fn mvp_2d(&mut self) -> Mat4 {
+        let canvas = vec2(50., 50.);
+        let window = window::screen_size();
+        let window = vec2(window.0, window.1) / 2.;
+        let aspect_window = window.x / window.y;
+        let aspect_canvas = canvas.x / canvas.y;
+        let scale = canvas.x / (aspect_canvas / aspect_window);
+        Mat4::orthographic_rh_gl(
+            -scale,
+            scale,
+            -canvas.y,
+            canvas.y,
+            -1.,
+            1.
+        )
+    }
+
+    pub(crate) fn mvp_3d(&mut self) -> Mat4 {
+        let (width, height) = window::screen_size();
+        Mat4::perspective_rh_gl(
+            60.0f32.to_radians(),
+            width / height,
+            0.01, 10.0
+        )
+        
     }
 
     pub(crate) fn shader_new(&mut self) -> ShaderId {
@@ -145,7 +149,7 @@ impl Ctx {
         )
     }
 
-    pub(crate) fn bindings_new(&mut self, verts: &Vec<Vertex>, indis: &Vec<u16>) {
+    pub(crate) fn bindings_new(&mut self, verts: &Vec<Vertex>, indis: &Vec<u16>) -> Bindings {
         let vertex_buffer = self.render_backend.new_buffer(
             BufferType::VertexBuffer,
             BufferUsage::Immutable,
@@ -156,10 +160,10 @@ impl Ctx {
             BufferUsage::Immutable,
             BufferSource::slice(indis),
         );
-        let bindings = Bindings {
+        Bindings {
             vertex_buffers: vec![vertex_buffer],
             index_buffer: index_buffer,
             images: vec![],
-        };
+        }
     }
 }

@@ -1,19 +1,28 @@
 use miniquad::Bindings;
 use crate::cross::*;
+use crate::render::Ctx;
 
 
 pub(crate) struct Draw {
     bindings: OnceLock<Bindings>,
-    indis: Vec<Vertex>,
-    verts: Vec<u16>,
+    verts: Vec<Vertex>,
+    indis: Vec<u16>,
 }
 impl Draw {
-    pub(crate) fn new(indis: Vec<Vertex>, verts: Vec<u16>) -> Self {
+    pub(crate) fn new(verts: Vec<Vertex>, indis: Vec<u16>) -> Self {
         Self {
             bindings: OnceLock::new(),
             indis,
             verts,
         }
+    }
+
+    pub(crate) fn draw(&self, ctx: &mut Ctx, mvp: Mat4) {
+        ctx.apply_mvp(mvp);
+        let bindings = self.bindings.get_or_init(|| {
+            ctx.bindings_new(&self.verts, &self.indis)
+        });
+        ctx.draw(bindings, self.indis.len() as i32);
     }
 }
 

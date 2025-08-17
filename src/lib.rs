@@ -1,6 +1,6 @@
 use miniquad::*;
+use std::any::Any;
 
-mod draw;
 mod shader;
 
 mod render;
@@ -9,11 +9,11 @@ use render::*;
 mod object;
 //use object::*;
 
+pub mod draw;
+pub use draw::*;
+
 pub mod app;
 pub use app::*;
-
-pub mod module;
-pub use module::*;
 
 pub mod object2d;
 pub use object2d::*;
@@ -27,6 +27,8 @@ pub use info::*;
 pub mod cross;
 pub use cross::*;
 
+
+
 /*
 
 TODO:
@@ -35,8 +37,8 @@ TODO:
 [#] Модули
 [#] Логика модулей
 [#] Добавление 2д объектов
-[?] Добавить мобули для 2д объектов
-[] Рисование 2д объектов
+[#] Добавить мобули для 2д объектов
+[#] Рисование 2д объектов
 [] Создать info
 [] Добавление 3д объектов
 [] Добавить мобули для 3д объектов
@@ -53,7 +55,7 @@ TODO:
 [] Кроссплатформенность
 
 Структура:
-lib - связь между устройством и движком {
+lib - связь между устройством и движком (ивенты) {
     render: miniquad - рендер {
         shader
     }
@@ -66,12 +68,13 @@ lib - связь между устройством и движком {
     }
 }
 singletoon {
-    cross: rayon
-    module
-    utils: glam
+    cross: rayon - кроссплатформенные функции
     draw
 }
+
 */
+
+
 
 pub struct Engine {
     pub app: App,
@@ -143,10 +146,36 @@ impl EventHandler for Event {
         self.modules.update(&mut self.app); // Обновление модулей движка
         self.app.post_update(); // Обновление модулей объектов
     }
-
     // Только при открытом окне
     fn draw(&mut self) {
         self.render.pre_update(); // Ставит uniforms
+        self.app.draw_2d(&mut self.render.ctx); // Рисование 2д
         self.render.post_update(); // Коммит фрейма
     }
+}
+
+
+#[derive(Default)]
+pub struct ModulesEngine {
+    module_list: Vec<Box<dyn ModuleEngine>>,
+    module_list_len: usize,
+}
+impl ModulesEngine {
+    pub(crate) fn update(&mut self, app: &mut App) {
+        for module in &mut self.module_list[self.module_list_len..] {
+            module.ready(app);
+        }
+        self.module_list_len = self.module_list.len();
+
+        for module in &mut self.module_list {
+            module.procces(app);
+        }
+    }
+    pub fn add(&mut self, module: impl ModuleEngine) {
+        self.module_list.push(Box::new(module));
+    }
+}
+pub trait ModuleEngine: Any + Sync + Send {
+    fn ready(&mut self, app: &mut App);
+    fn procces(&mut self, app: &mut App);
 }

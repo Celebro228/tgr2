@@ -2,6 +2,7 @@ use crate::info::Info;
 use crate::object::Object;
 use crate::object2d::Group2d;
 use crate::cross::*;
+use crate::render::Ctx;
 
 
 pub struct App {
@@ -25,5 +26,10 @@ impl App {
         let mut objects2d = take(&mut self.objects2d);
         objects2d.update(&self);
         self.objects2d = objects2d;
+    }
+
+    pub(crate) fn draw_2d(&mut self, ctx: &mut Ctx) {
+        let mvp = ctx.mvp_2d();
+        self.objects2d.draw(ctx, &mvp);
     }
 }
