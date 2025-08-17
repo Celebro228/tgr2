@@ -5,11 +5,11 @@ pub(crate) use rayon::slice::IterMut;
 #[cfg(target_arch = "wasm32")]
 pub(crate) use std::slice::IterMut;
 #[cfg(not(target_arch = "wasm32"))]
-use std::sync::{atomic::*, Arc, Mutex, MutexGuard};
+use std::sync::{atomic::*, Arc, Mutex};
 
 pub(crate) use glam::Mat4;
 pub use glam::{Vec2, Vec3, Vec4, vec2, vec3, vec4};
-pub(crate) use std::sync::OnceLock;
+pub(crate) use std::sync::{OnceLock, MutexGuard};
 
 pub(crate) use std::mem::take;
 

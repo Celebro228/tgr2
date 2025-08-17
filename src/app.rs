@@ -1,6 +1,7 @@
 use crate::info::Info;
 use crate::object::Object;
 use crate::object2d::Group2d;
+use crate::object3d::Group3d;
 use crate::cross::*;
 use crate::render::Ctx;
 
@@ -8,6 +9,7 @@ use crate::render::Ctx;
 pub struct App {
     pub info: Info,
     pub objects2d: Group2d,
+    pub objects3d: Group3d,
 }
 
 impl App {
@@ -15,6 +17,7 @@ impl App {
         Self {
             info: Info::new(time),
             objects2d: Group2d::default(),
+            objects3d: Group3d::default(),
         }
     }
 
@@ -26,6 +29,14 @@ impl App {
         let mut objects2d = take(&mut self.objects2d);
         objects2d.update(&self);
         self.objects2d = objects2d;
+        let mut objects3d = take(&mut self.objects3d);
+        objects3d.update(&self);
+        self.objects3d = objects3d;
+    }
+
+    pub(crate) fn draw_3d(&mut self, ctx: &mut Ctx) {
+        let mvp = ctx.mvp_3d();
+        self.objects3d.draw(ctx, &mvp);
     }
 
     pub(crate) fn draw_2d(&mut self, ctx: &mut Ctx) {

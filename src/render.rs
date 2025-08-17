@@ -104,11 +104,16 @@ impl Ctx {
 
     pub(crate) fn mvp_3d(&mut self) -> Mat4 {
         let (width, height) = window::screen_size();
+        let view = Mat4::look_at_rh(
+            vec3(0.0, 1.5, 3.0),
+            vec3(0.0, 0.0, 0.0),
+            vec3(0.0, 1.0, 0.0),
+        );
         Mat4::perspective_rh_gl(
             60.0f32.to_radians(),
             width / height,
             0.01, 10.0
-        )
+        ) * view
         
     }
 
@@ -132,6 +137,7 @@ impl Ctx {
             ],
             shader,
             PipelineParams {
+                cull_face: CullFace::Back,
                 depth_write: true,
                 depth_test: Comparison::LessOrEqual,
                 color_blend: Some(BlendState::new(  

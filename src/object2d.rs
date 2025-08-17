@@ -9,15 +9,15 @@ use crate::draw::*;
 
 
 pub fn rect(w: f32, h: f32) -> Shape {
+    let w = w / 2.;
+    let h = h / 2.;
     let verts = vec![
         Vertex::new(vec3(-w, -h, 0.), Color::new(1., 0., 0., 1.)),
         Vertex::new(vec3(w, -h, 0.), Color::new(0., 1., 0., 1.)),
         Vertex::new(vec3(w, h, 0.), Color::new(0., 1., 1., 1.)),
         Vertex::new(vec3(-w, h, 0.), Color::new(0., 0., 1., 1.)),
     ];
-
     let indis = vec![0, 1, 2, 2, 3, 0];
-
     Shape::new(Draw::new(verts, indis))
 }
 
@@ -83,7 +83,6 @@ pub struct Shape {
     pub scale: LData<Vec2>,
     pub rotation: LData<f32>,
     pub depht: LData<f32>,
-    
 }
 impl Shape {
     pub(crate) fn new(draw: Draw) -> Self {

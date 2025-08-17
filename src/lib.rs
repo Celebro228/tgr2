@@ -19,7 +19,7 @@ pub mod object2d;
 pub use object2d::*;
 
 pub mod object3d;
-//pub use object3d::*;
+pub use object3d::*;
 
 pub mod info;
 pub use info::*;
@@ -39,8 +39,8 @@ TODO:
 [#] Добавление 2д объектов
 [#] Добавить мобули для 2д объектов
 [#] Рисование 2д объектов
-[] Создать info
-[] Добавление 3д объектов
+[#] Создать info
+[?] Добавление 3д объектов
 [] Добавить мобули для 3д объектов
 [] Рисование 3д объектов
 [] Создать resource
@@ -142,15 +142,54 @@ impl Event {
 impl EventHandler for Event {
     // Работает и в фоне
     fn update(&mut self) {
+        let t = Timer::new("Info update app");
         self.app.pre_update(date::now()); // Обновление состояния
+        t.stop();
+        
+        let t = Timer::new("Engine modules update");
         self.modules.update(&mut self.app); // Обновление модулей движка
+        t.stop();
+        
+        let t = Timer::new("Objects modules update");
         self.app.post_update(); // Обновление модулей объектов
+        t.stop();
     }
     // Только при открытом окне
     fn draw(&mut self) {
-        self.render.pre_update(); // Ставит uniforms
+        let t = Timer::new("Frame");
+        self.render.pre_update(); // Готовит фрейм
+        t.stop();
+        
+        let t = Timer::new("Draw 3d");
+        self.app.draw_3d(&mut self.render.ctx); // Рисование 3д
+        t.stop();
+        
+        let t = Timer::new("Draw 2d");
         self.app.draw_2d(&mut self.render.ctx); // Рисование 2д
+        t.stop();
+        
+        let t = Timer::new("Commi");
         self.render.post_update(); // Коммит фрейма
+        t.stop();
+
+        println!("Fps: {}", self.app.info.fps as usize);
+    }
+}
+
+
+struct Timer {
+    time: std::time::Instant,
+    name: String,
+}
+impl Timer {
+    fn new(name: &str) -> Self {
+        Self {
+            time: std::time::Instant::now(),
+            name: name.to_string(),
+        }
+    }
+    fn stop(&self) {
+        println!("{}: {:?}", self.name, self.time.elapsed());
     }
 }
 
