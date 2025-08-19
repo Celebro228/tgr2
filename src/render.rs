@@ -27,29 +27,6 @@ impl Render {
     pub(crate) fn post_update(&mut self) {
         self.ctx.commit();
     }
-    /*pub(crate) fn draw() {
-
-        for draw in app.draw() {
-            
-            let vertex_buffer = self.ctx.new_buffer(
-                BufferType::VertexBuffer,
-                BufferUsage::Immutable,
-                BufferSource::slice(draw.0),
-            );
-            let index_buffer = self.ctx.new_buffer(
-                BufferType::IndexBuffer,
-                BufferUsage::Immutable,
-                BufferSource::slice(draw.1),
-            );
-            let bindings = Bindings {
-                vertex_buffers: vec![vertex_buffer],
-                index_buffer: index_buffer,
-                images: vec![],
-            };
-            self.ctx.apply_bindings(&bindings);
-            self.ctx.draw(0, draw.1.len() as i32, 1);
-        }
-    }*/
 }
 
 
@@ -78,10 +55,11 @@ impl Ctx {
         self.render_backend.draw(0, indis_len, 1);
     }
 
-    pub(crate) fn apply_mvp(&mut self, mvp: Mat4) {
+    pub(crate) fn apply_mvp(&mut self, mvp: Mat4, color: &Color) {
         self.render_backend
             .apply_uniforms(UniformsSource::table(&shader::Uniforms {
                 mvp,
+                color: *color,
             }));
     }
 
@@ -133,29 +111,15 @@ impl Ctx {
             &[BufferLayout::default()],
             &[
                 VertexAttribute::new("in_pos", VertexFormat::Float3),
-                VertexAttribute::new("in_color", VertexFormat::Float4),
             ],
             shader,
             PipelineParams {
-                cull_face: CullFace::Back,
-                depth_write: true,
-                depth_test: Comparison::LessOrEqual,
-                color_blend: Some(BlendState::new(  
-                    Equation::Add,
-                    BlendFactor::Value(BlendValue::SourceAlpha),
-                    BlendFactor::OneMinusValue(BlendValue::SourceAlpha),
-                )),
-                alpha_blend: Some(BlendState::new(
-                    Equation::Add,
-                    BlendFactor::Zero,
-                    BlendFactor::One,
-                )),
                 ..Default::default()
             },
         )
     }
 
-    pub(crate) fn bindings_new(&mut self, verts: &Vec<Vertex>, indis: &Vec<u16>) -> Bindings {
+    pub(crate) fn bindings_new(&mut self, verts: &Vec<Vec3>, indis: &Vec<u16>) -> Bindings {
         let vertex_buffer = self.render_backend.new_buffer(
             BufferType::VertexBuffer,
             BufferUsage::Immutable,

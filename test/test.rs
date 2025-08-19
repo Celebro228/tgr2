@@ -4,8 +4,8 @@ use tgr2::*;
 fn main() {
     let mut engine = Engine::new();
     //engine.modules.add(Info);
-    engine.modules.add(Objs3d);
-    //engine.modules.add(Objs2d);
+    //engine.modules.add(Objs3d);
+    engine.modules.add(Objs2d);
     engine.run("Tarantula");
 }
 
@@ -15,7 +15,7 @@ impl ModuleEngine for Objs3d {
     fn ready(&mut self, app: &mut App) {
         let mut factory = Factory3d::default();
 
-        for _ in -10..10 {
+        for _ in 0..1 {
             let mut shape = cube(1., 1., 1.);
             shape.modules.add(Cbe);
             factory.add(shape);
@@ -30,10 +30,10 @@ impl ModuleEngine for Objs3d {
 struct Cbe;
 impl ModuleModel for Cbe {
     fn ready(&mut self, _app: &App, obj: &Model) {
-
+        
     }
     fn procces(&mut self, app: &App, obj: &Model) {
-        *obj.rotation.lock() += app.info.delta
+        *obj.rotation.lock() += app.info.delta;
     }
 }
 
@@ -57,22 +57,10 @@ impl ModuleEngine for Objs2d {
 }
 struct Shp;
 impl ModuleShape for Shp {
-    fn ready(&mut self, _app: &App, _obj: &Shape) {
-        
+    fn ready(&mut self, _app: &App, obj: &Shape) {
+        obj.position.lock().x = 20.;
     }
     fn procces(&mut self, app: &App, obj: &Shape) {
         
-    }
-}
-
-
-struct Info;
-impl ModuleEngine for Info {
-    fn ready(&mut self, app: &mut App) {
-        println!("os: {:?}", app.info.os);
-        println!("time: {:?}", app.info.time);
-    }
-    fn procces(&mut self, app: &mut App) {
-        println!("delta: {}, fps: {}", app.info.delta, app.info.fps);
     }
 }

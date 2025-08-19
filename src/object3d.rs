@@ -13,14 +13,14 @@ pub fn cube(w: f32, h: f32, l: f32) -> Model {
     let h = h / 2.;
     let l = l / 2.;
     let verts = vec![
-        Vertex::new(vec3(-w, -h, l), Color::new(1., 0., 0., 1.)), // 0
-        Vertex::new(vec3(w, -h, l), Color::new(0., 1., 0., 1.)), // 1
-        Vertex::new(vec3(w, h, l), Color::new(0., 1., 1., 1.)), // 2
-        Vertex::new(vec3(-w, h, l), Color::new(0., 0., 1., 1.)), // 3
-        Vertex::new(vec3(w, h, -l), Color::new(1., 0., 0., 1.)), // 4
-        Vertex::new(vec3(w, -h, -l), Color::new(0., 1., 0., 1.)), // 5
-        Vertex::new(vec3(-w, -h, -l), Color::new(0., 1., 1., 1.)), // 6
-        Vertex::new(vec3(-w, h, -l), Color::new(0., 0., 1., 1.)), // 7
+        vec3(-w, -h, l), // 0
+        vec3(w, -h, l), // 1
+        vec3(w, h, l), // 2
+        vec3(-w, h, l), // 3
+        vec3(w, h, -l), // 4
+        vec3(w, -h, -l), // 5
+        vec3(-w, -h, -l), // 6
+        vec3(-w, h, -l), // 7
     ];
     let indis = vec![
         0, 1, 2, 2, 3, 0,
@@ -95,6 +95,7 @@ pub struct Model {
     pub scale: LData<Vec3>,
     pub rotation: LData<Vec3>,
     
+    pub color: Color,
 }
 impl Model {
     pub(crate) fn new(draw: Draw) -> Self {
@@ -104,6 +105,7 @@ impl Model {
             position: LData::new(Vec3::ZERO),
             scale: LData::new(Vec3::ONE),
             rotation: LData::new(Vec3::ZERO),
+            color: Color::new(1., 1., 1., 1.),
         }
     }
     /*pub(crate) fn get_mat(&self) -> Mat4 {
@@ -132,7 +134,7 @@ impl Object for Model {
         let rotation = rot_y * rot_x * rot_z;
 
         let mvp = mvp * position * rotation * scale;
-        self.draw.draw(ctx, mvp);
+        self.draw.draw(ctx, mvp, &self.color);
     }
 }
 impl Object3d for Model {}

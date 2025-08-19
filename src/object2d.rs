@@ -12,10 +12,10 @@ pub fn rect(w: f32, h: f32) -> Shape {
     let w = w / 2.;
     let h = h / 2.;
     let verts = vec![
-        Vertex::new(vec3(-w, -h, 0.), Color::new(1., 0., 0., 1.)),
-        Vertex::new(vec3(w, -h, 0.), Color::new(0., 1., 0., 1.)),
-        Vertex::new(vec3(w, h, 0.), Color::new(0., 1., 1., 1.)),
-        Vertex::new(vec3(-w, h, 0.), Color::new(0., 0., 1., 1.)),
+        vec3(-w, -h, 0.),
+        vec3(w, -h, 0.),
+        vec3(w, h, 0.),
+        vec3(-w, h, 0.),
     ];
     let indis = vec![0, 1, 2, 2, 3, 0];
     Shape::new(Draw::new(verts, indis))
@@ -83,6 +83,8 @@ pub struct Shape {
     pub scale: LData<Vec2>,
     pub rotation: LData<f32>,
     pub depht: LData<f32>,
+
+    pub color: Color,
 }
 impl Shape {
     pub(crate) fn new(draw: Draw) -> Self {
@@ -93,6 +95,7 @@ impl Shape {
             scale: LData::new(Vec2::ONE),
             rotation: LData::new(0.),
             depht: LData::new(0.),
+            color: Color::ONE,
         }
     }
     /*pub(crate) fn get_mat(&self) -> Mat4 {
@@ -120,7 +123,7 @@ impl Object for Shape {
         let rotation = Mat4::from_rotation_z(rotation);
 
         let mvp = mvp * position * rotation * scale;
-        self.draw.draw(ctx, mvp);
+        self.draw.draw(ctx, mvp, &self.color);
     }
 }
 impl Object2d for Shape {}

@@ -5,11 +5,11 @@ use crate::render::Ctx;
 
 pub(crate) struct Draw {
     bindings: OnceLock<Bindings>,
-    verts: Vec<Vertex>,
+    verts: Vec<Vec3>,
     indis: Vec<u16>,
 }
 impl Draw {
-    pub(crate) fn new(verts: Vec<Vertex>, indis: Vec<u16>) -> Self {
+    pub(crate) fn new(verts: Vec<Vec3>, indis: Vec<u16>) -> Self {
         Self {
             bindings: OnceLock::new(),
             indis,
@@ -17,25 +17,12 @@ impl Draw {
         }
     }
 
-    pub(crate) fn draw(&self, ctx: &mut Ctx, mvp: Mat4) {
-        ctx.apply_mvp(mvp);
+    pub(crate) fn draw(&self, ctx: &mut Ctx, mvp: Mat4, color: &Color) {
+        ctx.apply_mvp(mvp, color);
         let bindings = self.bindings.get_or_init(|| {
             ctx.bindings_new(&self.verts, &self.indis)
         });
         ctx.draw(bindings, self.indis.len() as i32);
-    }
-}
-
-
-#[repr(C)]
-#[derive(Clone, Copy, Debug)]
-pub(crate) struct Vertex {
-    pub(crate) pos: Vec3,
-    pub(crate) color: Color,
-}
-impl Vertex {
-    pub(crate) fn new(p: Vec3, c: Color) -> Self {
-        Self { pos: p, color: c }
     }
 }
 
@@ -49,6 +36,8 @@ pub struct Color {
     pub a: f32,
 }
 impl Color {
+    pub const ONE: Self = Self::new(1., 1., 1., 1.);
+
     pub const fn new(r: f32, g: f32, b: f32, a: f32) -> Self {
         Self { r, g, b, a }
     }
