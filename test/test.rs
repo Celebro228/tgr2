@@ -26,6 +26,8 @@ impl ModuleEngine for Objs3d {
         }
 
         app.objects3d.add("name", factory);
+
+        app.events.mouse_show(false);
     }
     fn procces(&mut self, _app: &mut App) {
         
@@ -37,7 +39,11 @@ impl ModuleModel for Cbe {
         
     }
     fn procces(&mut self, app: &App, obj: &Model) {
-        *obj.rotation.lock() += app.info.delta;
+        //*obj.rotation.lock() += app.info.delta;
+
+        obj.rotation.lock().x += app.events.mouse_delta.y * app.info.delta;
+        obj.rotation.lock().z += app.events.mouse_delta.x * app.info.delta;
+
         if app.events.is_key_pressed(KeyCode::W) {
             obj.position.lock().z -= SPEED * app.info.delta;
         }

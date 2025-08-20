@@ -48,7 +48,8 @@ TODO:
 [#] Рисование 3д объектов
 [-] Сделать общий transform
 [#] Разделить цвета от вершин
-[?] Создать ивенты
+[#] Создать ивенты клавы
+[#] Создать ивенты мыши
 [] Создать 2д камеру
 [] Создать 3д камеру
 [] Создать resource
@@ -183,15 +184,22 @@ impl EventHandler for EventEngine {
 
         println!("Fps: {}", self.app.info.fps as usize);
     }
-
     fn key_down_event(&mut self, keycode: KeyCode, _keymods: KeyMods, repeat: bool) {
         if !repeat {
             self.app.event_send_set(EventChange::Press(keycode));
         }
     }
-
     fn key_up_event(&mut self, keycode: KeyCode, _keymods: KeyMods) {
         self.app.event_send_set(EventChange::Release(keycode));
+    }
+    fn mouse_motion_event(&mut self, x: f32, y: f32) {
+        self.app.event_send_set(EventChange::Mouse(vec2(x, y)));
+    }
+    fn raw_mouse_motion(&mut self, dx: f32, dy: f32) {
+        self.app.event_send_set(EventChange::MouseDelta(vec2(dx, dy)));
+    }
+    fn touch_event(&mut self, _phase: TouchPhase, _id: u64, x: f32, y: f32) {
+        self.app.event_send_set(EventChange::Mouse(vec2(x, y)));
     }
 }
 
