@@ -153,8 +153,8 @@ impl ModulesShape {
     }
 }
 pub trait ModuleShape: Any + Sync + Send {
-    fn ready(&mut self, app: &App, obj: &Shape);
-    fn procces(&mut self, app: &App, obj: &Shape);
+    fn ready(&mut self, _app: &App, _obj: &Shape) {}
+    fn procces(&mut self, _app: &App, _obj: &Shape) {}
 }
 
 

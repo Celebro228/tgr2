@@ -27,6 +27,9 @@ pub use info::*;
 pub mod cross;
 pub use cross::*;
 
+pub mod event;
+pub use event::*;
+
 
 
 /*
@@ -62,7 +65,7 @@ TODO:
 Структура:
 lib - связь между устройством и движком (ивенты) {
     render: miniquad - рендер {
-        shader
+        shader: miniquad
     }
     app - состояние движка {
         audio
@@ -70,6 +73,7 @@ lib - связь между устройством и движком (ивент
         shape
         model
         resource
+        event: miniquad
     }
 }
 singletoon {
@@ -122,17 +126,17 @@ impl Engine {
             ..Default::default()
         };
 
-        start(conf, || Box::new(Event::new(self.app, self.modules)));
+        start(conf, || Box::new(EventEngine::new(self.app, self.modules)));
     }
 }
 
-struct Event {
+struct EventEngine {
     app: App,
     modules: ModulesEngine,
     render: Render,
 }
 
-impl Event {
+impl EventEngine {
     pub fn new(mut app: App, modules: ModulesEngine) -> Self {
         app.post_update();
 
@@ -144,7 +148,7 @@ impl Event {
     }
 }
 
-impl EventHandler for Event {
+impl EventHandler for EventEngine {
     // Работает и в фоне
     fn update(&mut self) {
         let t = Timer::new("Info update app");
@@ -173,11 +177,21 @@ impl EventHandler for Event {
         self.app.draw_2d(&mut self.render.ctx); // Рисование 2д
         t.stop();
         
-        let t = Timer::new("Commi");
+        let t = Timer::new("Commit");
         self.render.post_update(); // Коммит фрейма
         t.stop();
 
         println!("Fps: {}", self.app.info.fps as usize);
+    }
+
+    fn key_down_event(&mut self, keycode: KeyCode, _keymods: KeyMods, repeat: bool) {
+        if !repeat {
+            self.app.event_send_set(EventChange::Press(keycode));
+        }
+    }
+
+    fn key_up_event(&mut self, keycode: KeyCode, _keymods: KeyMods) {
+        self.app.event_send_set(EventChange::Release(keycode));
     }
 }
 
@@ -220,6 +234,6 @@ impl ModulesEngine {
     }
 }
 pub trait ModuleEngine: Any + Sync + Send {
-    fn ready(&mut self, app: &mut App);
-    fn procces(&mut self, app: &mut App);
+    fn ready(&mut self, _app: &mut App) {}
+    fn procces(&mut self, _app: &mut App) {}
 }

@@ -1,13 +1,17 @@
+use miniquad::KeyCode;
 use tgr2::*;
 
 
 fn main() {
     let mut engine = Engine::new();
     //engine.modules.add(Info);
-    //engine.modules.add(Objs3d);
-    engine.modules.add(Objs2d);
+    engine.modules.add(Objs3d);
+    //engine.modules.add(Objs2d);
     engine.run("Tarantula");
 }
+
+
+const SPEED: f32 = 10.;
 
 
 struct Objs3d;
@@ -34,6 +38,18 @@ impl ModuleModel for Cbe {
     }
     fn procces(&mut self, app: &App, obj: &Model) {
         *obj.rotation.lock() += app.info.delta;
+        if app.events.is_key_pressed(KeyCode::W) {
+            obj.position.lock().z -= SPEED * app.info.delta;
+        }
+        if app.events.is_key_pressed(KeyCode::S) {
+            obj.position.lock().z += SPEED * app.info.delta;
+        }
+        if app.events.is_key_pressed(KeyCode::A) {
+            obj.position.lock().x -= SPEED * app.info.delta;
+        }
+        if app.events.is_key_pressed(KeyCode::D) {
+            obj.position.lock().x += SPEED * app.info.delta;
+        }
     }
 }
 

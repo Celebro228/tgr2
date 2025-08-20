@@ -2,6 +2,7 @@ use miniquad::*;
 use crate::cross::*;
 use crate::draw::*;
 use crate::shader;
+pub(crate) use miniquad::Bindings;
 
 
 pub(crate) struct Render {
@@ -114,6 +115,19 @@ impl Ctx {
             ],
             shader,
             PipelineParams {
+                cull_face: CullFace::Back,
+                depth_write: true,
+                depth_test: Comparison::LessOrEqual,
+                color_blend: Some(BlendState::new(
+                    Equation::Add,
+                    BlendFactor::Value(BlendValue::SourceAlpha),
+                    BlendFactor::OneMinusValue(BlendValue::SourceAlpha),
+                )),
+                alpha_blend: Some(BlendState::new(
+                    Equation::Add,
+                    BlendFactor::Zero,
+                    BlendFactor::One,
+                )),
                 ..Default::default()
             },
         )
