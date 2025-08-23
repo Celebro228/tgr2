@@ -61,10 +61,6 @@ pub struct Object {
     pub modules: ModulesObject,
     draw: Draw,
 
-    // Transform
-    transform_edit: ABool,
-    transform_mat: Mat4,
-
     position: LData<Vec3>,
     scale: LData<Vec3>,
     rotation: LData<Vec3>,
@@ -77,9 +73,6 @@ impl Object {
             modules: ModulesObject::default(),
             draw,
 
-            transform_mat: Mat4::ZERO,
-            transform_edit: ABool::new(true),
-
             position: LData::new(Vec3::ZERO),
             scale: LData::new(Vec3::ONE),
             rotation: LData::new(Vec3::ZERO),
@@ -88,15 +81,12 @@ impl Object {
         }
     }
     pub fn position(&self) -> MutexGuard<'_, Vec3> {
-        self.transform_edit.set(true);
         self.position.lock()
     }
     pub fn scale(&self) -> MutexGuard<'_, Vec3> {
-        self.transform_edit.set(true);
         self.scale.lock()
     }
     pub fn rotation(&self) -> MutexGuard<'_, Vec3> {
-        self.transform_edit.set(true);
         self.rotation.lock()
     }
     pub fn color(&self) -> MutexGuard<'_, Color> {
@@ -112,24 +102,19 @@ impl Node for Object {
         }
     }
     fn draw(&mut self, ctx: &mut Ctx, mvp: &Mat4) {
-        if self.transform_edit.get() {
-            let position = *self.position.lock();
-            let position = Mat4::from_translation(position);
+        let position = *self.position.lock();
+        let position = Mat4::from_translation(position);
 
-            let scale = *self.scale.lock();
-            let scale = Mat4::from_scale(scale);
+        let scale = *self.scale.lock();
+        let scale = Mat4::from_scale(scale);
 
-            let rotation = *self.rotation.lock();
-            let rot_x = Mat4::from_rotation_x(rotation.x);
-            let rot_y = Mat4::from_rotation_y(rotation.y);
-            let rot_z = Mat4::from_rotation_z(rotation.z);
-            let rotation = rot_y * rot_x * rot_z;
+        let rotation = *self.rotation.lock();
+        let rot_x = Mat4::from_rotation_x(rotation.x);
+        let rot_y = Mat4::from_rotation_y(rotation.y);
+        let rot_z = Mat4::from_rotation_z(rotation.z);
+        let rotation = rot_y * rot_x * rot_z;
 
-            self.transform_edit.set(false);
-            self.transform_mat = position * rotation * scale;
-        }
-
-        let mvp = mvp * self.transform_mat;
+        let mvp = mvp * position * rotation * scale;
         let color = *self.color();
         self.draw.draw(ctx, mvp, &color);
     }

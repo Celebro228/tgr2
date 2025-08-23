@@ -5,8 +5,8 @@ use tgr2::*;
 fn main() {
     let mut engine = Engine::new();
     //engine.modules.add(Info);
-    //engine.modules.add(Objs3d);
-    engine.modules.add(_Objs2d);
+    engine.modules.add(Objs3d);
+    //engine.modules.add(_Objs2d);
     engine.run("Tarantula");
 }
 
@@ -26,7 +26,7 @@ impl ModuleEngine for Objs3d {
             factory.add(shape);
         }
 
-        app.objects3d.add("name", factory);
+        app.node3d.add("name", factory);
 
         app.events.mouse_show(false);
     }
@@ -69,7 +69,7 @@ impl ModuleEngine for _Objs2d {
             factory.add(shape);
         }
 
-        app.objects2d.add("name", factory);
+        app.node2d.add("name", factory);
     }
     fn procces(&mut self, _app: &mut App) {
         
