@@ -5,19 +5,20 @@ use tgr2::*;
 fn main() {
     let mut engine = Engine::new();
     //engine.modules.add(Info);
-    engine.modules.add(Objs3d);
-    //engine.modules.add(Objs2d);
+    //engine.modules.add(Objs3d);
+    engine.modules.add(_Objs2d);
     engine.run("Tarantula");
 }
 
 
 const SPEED: f32 = 10.;
+const MOUSE_SPEED: f32 = 0.01;
 
 
 struct Objs3d;
 impl ModuleEngine for Objs3d {
     fn ready(&mut self, app: &mut App) {
-        let mut factory = Factory3d::default();
+        let mut factory = Factory::new();
 
         for _ in 0..1 {
             let mut shape = cube(1., 1., 1.);
@@ -34,40 +35,37 @@ impl ModuleEngine for Objs3d {
     }
 }
 struct Cbe;
-impl ModuleModel for Cbe {
-    fn ready(&mut self, _app: &App, obj: &Model) {
-        
-    }
-    fn procces(&mut self, app: &App, obj: &Model) {
+impl ModuleObject for Cbe {
+    fn procces(&mut self, app: &App, obj: &Object) {
         //*obj.rotation.lock() += app.info.delta;
 
-        obj.rotation.lock().x += app.events.mouse_delta.y * app.info.delta;
-        obj.rotation.lock().z += app.events.mouse_delta.x * app.info.delta;
+        obj.rotation().x += app.events.mouse_delta.y * MOUSE_SPEED;
+        obj.rotation().z += app.events.mouse_delta.x * MOUSE_SPEED;
 
         if app.events.is_key_pressed(KeyCode::W) {
-            obj.position.lock().z -= SPEED * app.info.delta;
+            obj.position().z -= SPEED * app.info.delta;
         }
         if app.events.is_key_pressed(KeyCode::S) {
-            obj.position.lock().z += SPEED * app.info.delta;
+            obj.position().z += SPEED * app.info.delta;
         }
         if app.events.is_key_pressed(KeyCode::A) {
-            obj.position.lock().x -= SPEED * app.info.delta;
+            obj.position().x -= SPEED * app.info.delta;
         }
         if app.events.is_key_pressed(KeyCode::D) {
-            obj.position.lock().x += SPEED * app.info.delta;
+            obj.position().x += SPEED * app.info.delta;
         }
     }
 }
 
 
-struct Objs2d;
-impl ModuleEngine for Objs2d {
+struct _Objs2d;
+impl ModuleEngine for _Objs2d {
     fn ready(&mut self, app: &mut App) {
-        let mut factory = Factory2d::default();
+        let mut factory = Factory::new();
 
-        for _ in 0..10000 {
+        for _ in 0..1 {
             let mut shape = rect(50., 50.);
-            shape.modules.add(Shp);
+            shape.modules.add(_Shp);
             factory.add(shape);
         }
 
@@ -77,12 +75,9 @@ impl ModuleEngine for Objs2d {
         
     }
 }
-struct Shp;
-impl ModuleShape for Shp {
-    fn ready(&mut self, _app: &App, obj: &Shape) {
-        obj.position.lock().x = 20.;
-    }
-    fn procces(&mut self, app: &App, obj: &Shape) {
-        
+struct _Shp;
+impl ModuleObject for _Shp {
+    fn ready(&mut self, _app: &App, obj: &Object) {
+        obj.position().x = 20.;
     }
 }

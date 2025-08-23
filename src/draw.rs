@@ -65,7 +65,6 @@ impl Color {
         let h = h / 60.;
         let x = c * (1. - ((h % 2.) - 1.).abs());
         let m = v - s;
-
         let (r, g, b) = match h as u32 {
             0 => (c, x, 0.),
             1 => (x, c, 0.),
@@ -75,7 +74,6 @@ impl Color {
             5 => (c, 0., x),
             _ => (0., 0., 0.), // fallback, например если h = NaN
         };
-
         Self {
             r: r + m,
             g: g + m,

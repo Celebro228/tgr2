@@ -112,6 +112,7 @@ impl Ctx {
             &[BufferLayout::default()],
             &[
                 VertexAttribute::new("in_pos", VertexFormat::Float3),
+                VertexAttribute::new("in_color", VertexFormat::Float4),
             ],
             shader,
             PipelineParams {

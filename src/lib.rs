@@ -6,8 +6,8 @@ mod shader;
 mod render;
 use render::*;
 
-mod object;
-//use object::*;
+pub mod node;
+pub use node::*;
 
 pub mod draw;
 pub use draw::*;
@@ -15,11 +15,11 @@ pub use draw::*;
 pub mod app;
 pub use app::*;
 
-pub mod object2d;
-pub use object2d::*;
+pub mod node2d;
+pub use node2d::*;
 
-pub mod object3d;
-pub use object3d::*;
+pub mod node3d;
+pub use node3d::*;
 
 pub mod info;
 pub use info::*;
@@ -50,8 +50,11 @@ TODO:
 [#] Разделить цвета от вершин
 [#] Создать ивенты клавы
 [#] Создать ивенты мыши
+[?] Объеденить 2d и 3d
 [] Создать 2д камеру
 [] Создать 3д камеру
+[] Создание TGR-CLI
+[] Добавить физику
 [] Создать resource
 [] Добавление изображения
 [] Модели
@@ -59,7 +62,6 @@ TODO:
 [] Аудио
 [] Добавление текста
 [] Сохранение данных
-[] Создание TGR-CLI
 [] Мультиплеер
 [] Кроссплатформенность
 

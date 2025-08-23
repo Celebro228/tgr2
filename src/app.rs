@@ -1,7 +1,5 @@
 use crate::info::Info;
-use crate::object::Object;
-use crate::object2d::Group2d;
-use crate::object3d::Group3d;
+use crate::node::*;
 use crate::cross::*;
 use crate::event::*;
 use crate::render::Ctx;
@@ -10,8 +8,8 @@ use crate::render::Ctx;
 pub struct App {
     pub info: Info,
     pub events: Events,
-    pub objects2d: Group2d,
-    pub objects3d: Group3d,
+    pub objects2d: Group,
+    pub objects3d: Group,
 }
 
 impl App {
@@ -19,8 +17,8 @@ impl App {
         Self {
             info: Info::new(time),
             events: Events::default(),
-            objects2d: Group2d::default(),
-            objects3d: Group3d::default(),
+            objects2d: Group::default(),
+            objects3d: Group::default(),
         }
     }
 
