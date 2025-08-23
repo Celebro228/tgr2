@@ -64,38 +64,6 @@ impl Ctx {
             }));
     }
 
-    pub(crate) fn mvp_2d(&mut self) -> Mat4 {
-        let canvas = vec2(50., 50.);
-        let window = window::screen_size();
-        let window = vec2(window.0, window.1) / 2.;
-        let aspect_window = window.x / window.y;
-        let aspect_canvas = canvas.x / canvas.y;
-        let scale = canvas.x / (aspect_canvas / aspect_window);
-        Mat4::orthographic_rh_gl(
-            -scale,
-            scale,
-            -canvas.y,
-            canvas.y,
-            -1.,
-            1.
-        )
-    }
-
-    pub(crate) fn mvp_3d(&mut self) -> Mat4 {
-        let (width, height) = window::screen_size();
-        let view = Mat4::look_at_rh(
-            vec3(0.0, 1.5, 3.0),
-            vec3(0.0, 0.0, 0.0),
-            vec3(0.0, 1.0, 0.0),
-        );
-        Mat4::perspective_rh_gl(
-            60.0f32.to_radians(),
-            width / height,
-            0.01, 10.0
-        ) * view
-        
-    }
-
     pub(crate) fn shader_new(&mut self) -> ShaderId {
         self.render_backend.new_shader(
             ShaderSource::Glsl {

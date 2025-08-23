@@ -1,9 +1,10 @@
 #[cfg(not(target_arch = "wasm32"))]
 pub(crate) use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 #[cfg(not(target_arch = "wasm32"))]
-pub(crate) use rayon::slice::IterMut;
+pub(crate) use rayon::slice::{IterMut, ChunksMut};
+use rayon::slice::ParallelSliceMut;
 #[cfg(target_arch = "wasm32")]
-pub(crate) use std::slice::IterMut;
+pub(crate) use std::slice::{IterMut, ChunksMut};
 #[cfg(not(target_arch = "wasm32"))]
 use std::sync::{atomic::*, Arc, Mutex};
 
@@ -14,11 +15,18 @@ pub(crate) use std::sync::{OnceLock, MutexGuard};
 pub(crate) use std::mem::take;
 
 
-pub(crate) fn cross_iter<T: Send>(v: &mut [T]) -> IterMut<'_, T> {
+pub(crate) fn _cross_iter<T: Send>(v: &mut [T]) -> IterMut<'_, T> {
     #[cfg(target_arch = "wasm32")]
     return v.iter_mut();
     #[cfg(not(target_arch = "wasm32"))]
     return v.par_iter_mut();
+}
+
+pub(crate) fn cross_chunks<T: Send>(v: &mut [T], chunks: usize) -> ChunksMut<'_, T> {
+    #[cfg(target_arch = "wasm32")]
+    return v.chunks_mut(chunks);
+    #[cfg(not(target_arch = "wasm32"))]
+    return v.par_chunks_mut(chunks);
 }
 
 

@@ -17,6 +17,47 @@ pub fn rect(w: f32, h: f32) -> Object {
 }
 
 
+pub struct Camera2d {
+    position: LData<Vec3>,
+    zoom: LData<f32>,
+}
+impl Camera2d {
+    pub fn new() -> Self {
+        Self {
+            position: LData::new(Vec3::ZERO),
+            zoom: LData::new(1.),
+        }
+    }
+    pub(crate) fn get_mat(&self, window: (f32, f32)) -> Mat4 {
+        let zoom = *self.zoom.lock();
+        let canvas = vec2(50., 50.) / zoom;
+        let window = vec2(window.0, window.1) / 2.;
+        let aspect_window = window.x / window.y;
+        let aspect_canvas = canvas.x / canvas.y;
+        let scale = canvas.x / (aspect_canvas / aspect_window);
+        let view = Mat4::orthographic_rh_gl(
+            -scale,
+            scale,
+            -canvas.y,
+            canvas.y,
+            -1.,
+            1.
+        );
+
+        let position = *self.position.lock();
+        let position = Mat4::from_translation(-position);
+
+        view * position
+    }
+    pub fn position(&self) -> MutexGuard<'_, Vec3> {
+        self.position.lock()
+    }
+    pub fn zoom(&self) -> MutexGuard<'_, f32> {
+        self.zoom.lock()
+    }
+}
+
+
 /*pub struct ObjRef<'a, T> {
     object_add_list_lock: MutexGuard<'a, Vec<(String, T)>>
 }

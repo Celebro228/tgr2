@@ -43,16 +43,16 @@ impl ModuleObject for Cbe {
         obj.rotation().z += app.events.mouse_delta.x * MOUSE_SPEED;
 
         if app.events.is_key_pressed(KeyCode::W) {
-            obj.position().z -= SPEED * app.info.delta;
+            app.camera3d.position().z -= SPEED * app.info.delta;
         }
         if app.events.is_key_pressed(KeyCode::S) {
-            obj.position().z += SPEED * app.info.delta;
+            app.camera3d.position().z += SPEED * app.info.delta;
         }
         if app.events.is_key_pressed(KeyCode::A) {
-            obj.position().x -= SPEED * app.info.delta;
+            app.camera3d.position().x -= SPEED * app.info.delta;
         }
         if app.events.is_key_pressed(KeyCode::D) {
-            obj.position().x += SPEED * app.info.delta;
+            app.camera3d.position().x += SPEED * app.info.delta;
         }
     }
 }
@@ -63,7 +63,7 @@ impl ModuleEngine for _Objs2d {
     fn ready(&mut self, app: &mut App) {
         let mut factory = Factory::new();
 
-        for _ in 0..1 {
+        for _ in 0..100 {
             let mut shape = rect(50., 50.);
             shape.modules.add(_Shp);
             factory.add(shape);
@@ -79,5 +79,19 @@ struct _Shp;
 impl ModuleObject for _Shp {
     fn ready(&mut self, _app: &App, obj: &Object) {
         obj.position().x = 20.;
+    }
+    fn procces(&mut self, app: &App, _obj: &Object) {
+        if app.events.is_key_pressed(KeyCode::W) {
+            app.camera2d.position().y += app.info.delta;
+        }
+        if app.events.is_key_pressed(KeyCode::S) {
+            app.camera2d.position().y -= app.info.delta;
+        }
+        if app.events.is_key_pressed(KeyCode::A) {
+            app.camera2d.position().x -= app.info.delta;
+        }
+        if app.events.is_key_pressed(KeyCode::D) {
+            app.camera2d.position().x += app.info.delta;
+        }
     }
 }

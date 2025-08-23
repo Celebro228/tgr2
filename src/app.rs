@@ -1,5 +1,7 @@
 use crate::info::Info;
 use crate::node::*;
+use crate::node2d::Camera2d;
+use crate::node3d::Camera3d;
 use crate::cross::*;
 use crate::event::*;
 use crate::render::Ctx;
@@ -10,6 +12,8 @@ pub struct App {
     pub events: Events,
     pub node2d: Group,
     pub node3d: Group,
+    pub camera2d: Camera2d,
+    pub camera3d: Camera3d,
 }
 
 impl App {
@@ -19,6 +23,8 @@ impl App {
             events: Events::default(),
             node2d: Group::default(),
             node3d: Group::default(),
+            camera2d: Camera2d::new(),
+            camera3d: Camera3d::new(),
         }
     }
 
@@ -38,13 +44,13 @@ impl App {
         self.events.clear_active_events();
     }
 
-    pub(crate) fn draw_3d(&mut self, ctx: &mut Ctx) {
-        let mvp = ctx.mvp_3d();
+    pub(crate) fn draw_3d(&mut self, ctx: &mut Ctx, window: (f32, f32)) {
+        let mvp = self.camera3d.get_mat(window);
         self.node3d.draw(ctx, &mvp);
     }
 
-    pub(crate) fn draw_2d(&mut self, ctx: &mut Ctx) {
-        let mvp = ctx.mvp_2d();
+    pub(crate) fn draw_2d(&mut self, ctx: &mut Ctx, window: (f32, f32)) {
+        let mvp = self.camera2d.get_mat(window);
         self.node2d.draw(ctx, &mvp);
     }
 

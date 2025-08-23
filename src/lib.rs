@@ -50,8 +50,8 @@ TODO:
 [#] Разделить цвета от вершин
 [#] Создать ивенты клавы
 [#] Создать ивенты мыши
-[?] Объеденить 2d и 3d
-[] Создать 2д камеру
+[#] Объеденить 2d и 3d
+[?] Создать 2д камеру
 [] Создать 3д камеру
 [] Создание TGR-CLI
 [] Добавить физику
@@ -171,13 +171,15 @@ impl EventHandler for EventEngine {
         let t = Timer::new("Frame");
         self.render.pre_update(); // Готовит фрейм
         t.stop();
+
+        let window = window::screen_size();
         
         let t = Timer::new("Draw 3d");
-        self.app.draw_3d(&mut self.render.ctx); // Рисование 3д
+        self.app.draw_3d(&mut self.render.ctx, window); // Рисование 3д
         t.stop();
         
         let t = Timer::new("Draw 2d");
-        self.app.draw_2d(&mut self.render.ctx); // Рисование 2д
+        self.app.draw_2d(&mut self.render.ctx, window); // Рисование 2д
         t.stop();
         
         let t = Timer::new("Commit");

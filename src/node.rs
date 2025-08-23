@@ -45,9 +45,11 @@ impl Factory {
 }
 impl Node for Factory {
     fn update(&mut self, app: &App) {
-        for obj in &mut self.object_list {
-            obj.update(app);
-        }
+        cross_chunks(&mut self.object_list, 1000).for_each(|chunk| {
+            for obj in chunk {
+                obj.update(app);
+            }
+        });
     }
     fn draw(&mut self, ctx: &mut Ctx, mvp: &Mat4) {
         for obj in &mut self.object_list {
@@ -136,9 +138,9 @@ impl ModulesObject {
         }
         self.module_list_len = self.module_list.len();
 
-        cross_iter(&mut self.module_list).for_each(|module| {
+        for module in &mut self.module_list {
             module.procces(app, obj);
-        });
+        }
     }
     pub(crate) fn is_size(&self) -> bool {
         self.module_list.len() != 0

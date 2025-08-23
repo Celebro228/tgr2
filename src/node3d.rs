@@ -28,6 +28,40 @@ pub fn cube(w: f32, h: f32, l: f32) -> Object {
     Object::new(Draw::new(verts, indis))
 }
 
+
+pub struct Camera3d {
+    position: LData<Vec3>,
+    fov: LData<f32>,
+}
+impl Camera3d {
+    pub fn new() -> Self {
+        Self {
+            position: LData::new(Vec3::ZERO),
+            fov: LData::new(60.),
+        }
+    }
+    pub(crate) fn get_mat(&self, window: (f32, f32)) -> Mat4 {
+        let (width, height) = window;
+        let fov = *self.fov.lock();
+        let view = Mat4::perspective_rh_gl(
+            fov.to_radians(),
+            width / height,
+            0.01, 100.0
+        );
+
+        let position = *self.position.lock();
+        let position = Mat4::from_translation(-position);
+
+        view * position
+    }
+    pub fn position(&self) -> MutexGuard<'_, Vec3> {
+        self.position.lock()
+    }
+    pub fn fov(&self) -> MutexGuard<'_, f32> {
+        self.fov.lock()
+    }
+}
+
 /*pub struct ObjRef<'a, T> {
     object_add_list_lock: MutexGuard<'a, Vec<(String, T)>>
 }
