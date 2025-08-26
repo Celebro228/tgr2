@@ -38,6 +38,7 @@ pub struct Color {
     pub a: f32,
 }
 impl Color {
+    pub const ZERO: Self = Self::new(0., 0., 0., 1.);
     pub const ONE: Self = Self::new(1., 1., 1., 1.);
 
     pub const fn new(r: f32, g: f32, b: f32, a: f32) -> Self {

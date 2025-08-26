@@ -51,19 +51,19 @@ TODO:
 [#] Создать ивенты клавы
 [#] Создать ивенты мыши
 [#] Объеденить 2d и 3d
-[?] Создать 2д камеру
-[] Создать 3д камеру
-[] Создание TGR-CLI
+[#] Создать 2д камеру
+[#] Создать 3д камеру
+[?] Свет
 [] Добавить физику
+[] Кроссплатформенность
+[] Создание TGR-CLI
 [] Создать resource
 [] Добавление изображения
 [] Модели
-[] Свет
 [] Аудио
 [] Добавление текста
 [] Сохранение данных
 [] Мультиплеер
-[] Кроссплатформенность
 
 Структура:
 lib - связь между устройством и движком (ивенты) {
@@ -186,7 +186,7 @@ impl EventHandler for EventEngine {
         self.render.post_update(); // Коммит фрейма
         t.stop();
 
-        println!("Fps: {}", self.app.info.fps as usize);
+        println!("Fps: {}", self.app.info.fps() as usize);
     }
     fn key_down_event(&mut self, keycode: KeyCode, _keymods: KeyMods, repeat: bool) {
         if !repeat {

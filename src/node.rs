@@ -15,6 +15,9 @@ impl Group {
     pub fn add(&mut self, name: &str, object: impl Node) {
         self.object_list.insert(name.to_string(), Box::new(object));
     }
+    pub fn len(&self) -> usize {
+        self.object_list.len()
+    }
 }
 impl Node for Group {
     fn update(&mut self, app: &App) {
@@ -63,11 +66,10 @@ pub struct Object {
     pub modules: ModulesObject,
     draw: Draw,
 
-    position: LData<Vec3>,
-    scale: LData<Vec3>,
-    rotation: LData<Vec3>,
-    
-    color: LData<Color>,
+    pub position: Vec3,
+    pub scale: Vec3,
+    pub rotation: Vec3,
+    pub color: Color,
 }
 impl Object {
     pub(crate) fn new(draw: Draw) -> Self {
@@ -75,50 +77,33 @@ impl Object {
             modules: ModulesObject::default(),
             draw,
 
-            position: LData::new(Vec3::ZERO),
-            scale: LData::new(Vec3::ONE),
-            rotation: LData::new(Vec3::ZERO),
-
-            color: LData::new(Color::new(1., 1., 1., 1.)),
+            position: Vec3::ZERO,
+            scale: Vec3::ONE,
+            rotation: Vec3::ZERO,
+            color: Color::ONE,
         }
-    }
-    pub fn position(&self) -> MutexGuard<'_, Vec3> {
-        self.position.lock()
-    }
-    pub fn scale(&self) -> MutexGuard<'_, Vec3> {
-        self.scale.lock()
-    }
-    pub fn rotation(&self) -> MutexGuard<'_, Vec3> {
-        self.rotation.lock()
-    }
-    pub fn color(&self) -> MutexGuard<'_, Color> {
-        self.color.lock()
     }
 }
 impl Node for Object {
     fn update(&mut self, app: &App) {
         if self.modules.is_size() {
             let mut modules = take(&mut self.modules);
-            modules.update(app, &self);
+            modules.update(app, self);
             self.modules = modules;
         }
     }
     fn draw(&mut self, ctx: &mut Ctx, mvp: &Mat4) {
-        let position = *self.position.lock();
-        let position = Mat4::from_translation(position);
+        let position = Mat4::from_translation(self.position);
 
-        let scale = *self.scale.lock();
-        let scale = Mat4::from_scale(scale);
+        let scale = Mat4::from_scale(self.scale);
 
-        let rotation = *self.rotation.lock();
-        let rot_x = Mat4::from_rotation_x(rotation.x);
-        let rot_y = Mat4::from_rotation_y(rotation.y);
-        let rot_z = Mat4::from_rotation_z(rotation.z);
+        let rot_x = Mat4::from_rotation_x(self.rotation.x);
+        let rot_y = Mat4::from_rotation_y(self.rotation.y);
+        let rot_z = Mat4::from_rotation_z(self.rotation.z);
         let rotation = rot_y * rot_x * rot_z;
 
         let mvp = mvp * position * rotation * scale;
-        let color = *self.color();
-        self.draw.draw(ctx, mvp, &color);
+        self.draw.draw(ctx, mvp, &self.color);
     }
 }
 
@@ -132,7 +117,7 @@ impl ModulesObject {
     pub fn add(&mut self, module: impl ModuleObject) {
         self.module_list.push(Box::new(module));
     }
-    pub(crate) fn update(&mut self, app: &App, obj: &Object) {
+    pub(crate) fn update(&mut self, app: &App, obj: &mut Object) {
         for module in &mut self.module_list[self.module_list_len..] {
             module.ready(app, obj);
         }
@@ -147,8 +132,8 @@ impl ModulesObject {
     }
 }
 pub trait ModuleObject: Any + Sync + Send {
-    fn ready(&mut self, _app: &App, _obj: &Object) {}
-    fn procces(&mut self, _app: &App, _obj: &Object) {}
+    fn ready(&mut self, _app: &App, _obj: &mut Object) {}
+    fn procces(&mut self, _app: &App, _obj: &mut Object) {}
 }
 
 

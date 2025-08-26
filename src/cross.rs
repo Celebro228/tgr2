@@ -111,13 +111,4 @@ impl ABool {
     pub fn get(&self) -> bool {
         self.data.load(ORD_STATUS)
     }
-    pub fn not(&self) -> bool {
-        self.data.fetch_not(ORD_STATUS)
-    }
-    pub fn and(&self, v: bool) -> bool {
-        self.data.fetch_and(v, ORD_STATUS)
-    }
-    pub fn or(&self, v: bool) -> bool {
-        self.data.fetch_or(v, ORD_STATUS)
-    }
 }

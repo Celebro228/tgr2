@@ -1,8 +1,8 @@
 pub struct Info {
-    pub time: f64,
-    pub delta: f32,
-    pub fps: f32,
-    pub os: OS,
+    time: f64,
+    delta: f32,
+    fps: f32,
+    os: OS,
 }
 
 impl Info {
@@ -33,6 +33,11 @@ impl Info {
         self.fps = 1. / self.delta;
         self.time = time;
     }
+
+    pub fn time(&self) -> f64 { self.time }
+    pub fn delta(&self) -> f32 { self.delta }
+    pub fn fps(&self) -> f32 { self.fps }
+    pub fn os(&self) -> &OS { &self.os }
 }
 
 #[derive(Debug)]

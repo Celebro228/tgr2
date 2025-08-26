@@ -31,12 +31,14 @@ pub fn cube(w: f32, h: f32, l: f32) -> Object {
 
 pub struct Camera3d {
     position: LData<Vec3>,
+    rotation: LData<Vec3>,
     fov: LData<f32>,
 }
 impl Camera3d {
     pub fn new() -> Self {
         Self {
             position: LData::new(Vec3::ZERO),
+            rotation: LData::new(Vec3::ZERO),
             fov: LData::new(60.),
         }
     }
